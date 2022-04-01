@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+export PS3='[press ENTER show menu] #?>'
 red_blod() {
 	echo -e "\x1b[1;31m$1\e[0m"
 }
@@ -56,7 +56,7 @@ webpath='/'
 
 ### 1.环境检查 ###
 prerequisites_setting() {
-	yellow_blod "[+] 环境检测"
+	yellow_blod "[+] 初始化"
 	# 验证是否为root权限
 	if [ $UID -ne 0 ]; then
 		red_slim_flash "[ERROR] 请使用root权限运行"
@@ -137,7 +137,7 @@ prerequisites_setting() {
 
 
 base_check() {
-	yellow_blod "[+] 基础配置检查"
+	yellow_blod "[+] 系统基础配置检查"
 	#系统信息
 	yellow_slim "[++] 系统信息"
 	#当前用户
@@ -356,7 +356,7 @@ network_check() {
 }
 
 crontab_check() {
-	yellow_blod "[+] 任务计划检查 "
+	yellow_blod "[+] 任务计划检查"
 	#crontab
 	yellow_slim "[++] Crontab"
 	bblue_slim "[Command]: crontab -u root -l | ag -v '#'"
@@ -375,7 +375,7 @@ crontab_check() {
 }
 
 env_check() {
-	yellow_blod "[+] 环境变量检查 "
+	yellow_blod "[+] 环境变量检查"
 	#env
 	yellow_slim "[++] env"
 	bblue_slim "[Command]: env"
@@ -451,7 +451,7 @@ env_check() {
 }
 
 user_check() {
-	yellow_blod "[+] 用户信息检查 "
+	yellow_blod "[+] 用户信息检查"
 	yellow_slim "[++] 可登陆的用户"
 	bblue_slim "[Command]: cat /etc/passwd | ag -v 'nologin$|false$'"
 	cat /etc/passwd | ag -v 'nologin$|false$'
@@ -481,7 +481,7 @@ user_check() {
 }
 
 service_check() {
-	yellow_blod "[+] 服务状态检查 "
+	yellow_blod "[+] 服务状态检查"
 	yellow_slim "[++] 正在运行的Service "
 	bblue_slim "[Command]: systemctl -l | grep running | awk '{print \$1}'"
 	systemctl -l | grep running | awk '{print $1}'
@@ -496,7 +496,7 @@ service_check() {
 }
 
 bash_check() {
-	yellow_blod "[+] Bash配置检查 "
+	yellow_blod "[+] Bash 配置检查"
 	#查看history文件
 	yellow_slim "[++] History"
 	bblue_slim "[Command]: ls -alht /root/.*_history"
@@ -552,7 +552,7 @@ bash_check() {
 }
 
 file_check() {
-	yellow_blod "[+] 文件检查 "
+	yellow_blod "[+] 可疑文件检查"
 	#系统文件修改时间
 	yellow_slim "[++] 系统文件修改时间 "
 	bblue_slim "[Command]: stat (/sbin/ifconfig|/bin/ls|/bin/login|/bin/netstat|/bin/top|/bin/ps|/bin/find|/bin/grep|/etc/passwd|/etc/shadow|/usr/bin/curl|/usr/bin/wget|/root/.ssh/authorized_keys)"
@@ -640,7 +640,7 @@ file_check() {
 }
 
 rootkit_check() {
-	yellow_blod "[+] Rootkit检查 "
+	yellow_blod "[+] Rootkit检查"
 	#lsmod 可疑模块
 	yellow_slim "[++] lsmod 可疑模块"
 	bblue_slim "[Command]: lsmod | ag -v 'ablk_helper|ac97_bus|acpi_power_meter|aesni_intel|ahci|ata_generic|ata_piix|auth_rpcgss|binfmt_misc|bluetooth|bnep|bnx2|bridge|cdrom|cirrus|coretemp|crc_t10dif|crc32_pclmul|crc32c_intel|crct10dif_common|crct10dif_generic|crct10dif_pclmul|cryptd|dca|dcdbas|dm_log|dm_mirror|dm_mod|dm_region_hash|drm|drm_kms_helper|drm_panel_orientation_quirks|e1000|ebtable_broute|ebtable_filter|ebtable_nat|ebtables|edac_core|ext4|fb_sys_fops|floppy|fuse|gf128mul|ghash_clmulni_intel|glue_helper|grace|i2c_algo_bit|i2c_core|i2c_piix4|i7core_edac|intel_powerclamp|ioatdma|ip_set|ip_tables|ip6_tables|ip6t_REJECT|ip6t_rpfilter|ip6table_filter|ip6table_mangle|ip6table_nat|ip6ta ble_raw|ip6table_security|ipmi_devintf|ipmi_msghandler|ipmi_si|ipmi_ssif|ipt_MASQUERADE|ipt_REJECT|iptable_filter|iptable_mangle|iptable_nat|iptable_raw|iptable_security|iTCO_vendor_support|iTCO_wdt|jbd2|joydev|kvm|kvm_intel|libahci|libata|libcrc32c|llc|lockd|lpc_ich|lrw|mbcache|megaraid_sas|mfd_core|mgag200|Module|mptbase|mptscsih|mptspi|nf_conntrack|nf_conntrack_ipv4|nf_conntrack_ipv6|nf_defrag_ipv4|nf_defrag_ipv6|nf_nat|nf_nat_ipv4|nf_nat_ipv6|nf_nat_masquerade_ipv4|nfnetlink|nfnetlink_log|nfnetlink_queue|nfs_acl|nfsd|parport|parport_pc|pata_acpi|pcspkr|ppdev|rfkill|sch_fq_codel|scsi_transport_spi|sd_mod|serio_raw|sg|shpchp|snd|snd_ac97_codec|snd_ens1371|snd_page_alloc|snd_pcm|snd_rawmidi|snd_seq|snd_seq_device|snd_seq_midi|snd_seq_midi_event|snd_timer|soundcore|sr_mod|stp|sunrpc|syscopyarea|sysfillrect|sysimgblt|tcp_lp|ttm|tun|uvcvideo|videobuf2_core|videobuf2_memops|videobuf2_vmalloc|videodev|virtio|virtio_balloon|virtio_console|virtio_net|virtio_pci|virtio_ring|virtio_scsi|vmhgfs|vmw_balloon|vmw_vmci|vmw_vsock_vmci_transport|vmware_balloon|vmwgfx|vsock|xfs|xt_CHECKSUM|xt_conntrack|xt_state|raid*|tcpbbr|btrfs|.*diag|psmouse|ufs|linear|msdos|cpuid|veth|xt_tcpudp|xfrm_user|xfrm_algo|xt_addrtype|br_netfilter|input_leds|sch_fq|ib_iser|rdma_cm|iw_cm|ib_cm|ib_core|.*scsi.*|tcp_bbr|pcbc|autofs4|multipath|hfs.*|minix|ntfs|vfat|jfs|usbcore|usb_common|ehci_hcd|uhci_hcd|ecb|crc32c_generic|button|hid|usbhid|evdev|hid_generic|overlay|xt_nat|qnx4|sb_edac|acpi_cpufreq|ixgbe|pf_ring|tcp_htcp|cfg80211|x86_pkg_temp_thermal|mei_me|mei|processor|thermal_sys|lp|enclosure|ses|ehci_pci|igb|i2c_i801|pps_core|isofs|nls_utf8|xt_REDIRECT|xt_multiport|iosf_mbi|qxl|cdc_ether|usbnet'"
@@ -672,7 +672,7 @@ rootkit_check() {
 }
 
 ssh_check() {
-	yellow_blod "[+] SSH检查 "
+	yellow_blod "[+] SSH 检查"
 	#SSH 爆破IP
 	yellow_slim "[++] SSH爆破"
 	bblue_slim "[Command]: ag -a 'authentication failure' /var/log/secure* | awk '{print $14}' | awk -F '=' '{print $2}' | ag '\d+\.\d+\.\d+\.\d+' | sort | uniq -c | sort -nr | head -n 25"
@@ -725,7 +725,7 @@ ssh_check() {
 }
 
 webshell_check() {
-	yellow_blod "[+] Webshell检查 "
+	yellow_blod "[+] Webshell 检查"
 	#PHP webshell查杀
 	yellow_slim "[++] PHP webshell查杀"
 	ag --php -l -s -i 'array_map\(|pcntl_exec\(|proc_open\(|popen\(|assert\(|phpspy|c99sh|milw0rm|eval?\(|\(gunerpress|\(base64_decoolcode|spider_bc|shell_exec\(|passthru\(|base64_decode\s?\(|gzuncompress\s?\(|gzinflate|\(\$\$\w+|call_user_func\(|call_user_func_array\(|preg_replace_callback\(|preg_replace\(|register_shutdown_function\(|register_tick_function\(|mb_ereg_replace_callback\(|filter_var\(|ob_start\(|usort\(|uksort\(|uasort\(|GzinFlate\s?\(|\$\w+\(\d+\)\.\$\w+\(\d+\)\.|\$\w+=str_replace\(|eval\/\*.*\*\/\(' $webpath
@@ -743,7 +743,7 @@ webshell_check() {
 }
 
 poison_check() {
-	yellow_blod "[+] 供应链投毒检测 "
+	yellow_blod "[+] 供应链投毒检测"
 	#Python2 pip 检测
 	yellow_slim "[++] Python2 pip 检测"
 	bblue_slim "[Command]: pip freeze | ag 'istrib|djanga|easyinstall|junkeldat|libpeshka|mumpy|mybiubiubiu|nmap-python|openvc|python-ftp|pythonkafka|python-mongo|python-mysql|python-mysqldb|python-openssl|python-sqlite|virtualnv|mateplotlib|request='"
@@ -758,7 +758,7 @@ poison_check() {
 }
 
 miner_check() {
-	yellow_blod "[+] 挖矿木马检查 "
+	yellow_blod "[+] 挖矿木马检查"
 	#常规挖矿进程检测
 	yellow_slim "[++] 常规挖矿进程检测"
 	normal_miner_1=$(ps aux | ag "systemctI|kworkerds|init10.cfg|wl.conf|crond64|watchbog|sustse|donate|proxkekman|test.conf|/var/tmp/apple|/var/tmp/big|/var/tmp/small|/var/tmp/cat|/var/tmp/dog|/var/tmp/mysql|/var/tmp/sishen|ubyx|cpu.c|tes.conf|psping|/var/tmp/java-c|pscf|cryptonight|sustes|xmrig|xmr-stak|suppoie|ririg|/var/tmp/ntpd|/var/tmp/ntp|/var/tmp/qq|/tmp/qq|/var/tmp/aa|gg1.conf|hh1.conf|apaqi|dajiba|/var/tmp/look|/var/tmp/nginx|dd1.conf|kkk1.conf|ttt1.conf|ooo1.conf|ppp1.conf|lll1.conf|yyy1.conf|1111.conf|2221.conf|dk1.conf|kd1.conf|mao1.conf|YB1.conf|2Ri1.conf|3Gu1.conf|crant|nicehash|linuxs|linuxl|Linux|crawler.weibo|stratum|gpg-daemon|jobs.flu.cc|cranberry|start.sh|watch.sh|krun.sh|killTop.sh|cpuminer|/60009|ssh_deny.sh|clean.sh|\./over|mrx1|redisscan|ebscan|barad_agent|\.sr0|clay|udevs|\.sshd|/tmp/init|xmr|xig|ddgs|minerd|hashvault|geqn|\.kthreadd|httpdz|pastebin.com|sobot.com|kerbero|2t3ik|ddgs|qW3xt|ztctb" | ag -v 'ag')
@@ -794,7 +794,7 @@ miner_check() {
 }
 
 rkhunter_install() {
-	yellow_blod "[+] Rkhunter安装 "
+	yellow_blod "[+] Rookit 查杀"
 	#Rkhunter查杀
 	yellow_slim "[++] Rkhunter查杀"
 	bblue_slim "[Command]: rkhunter --checkall --sk | ag -v 'OK|Not found|None found'"
@@ -816,7 +816,7 @@ rkhunter_install() {
 }
 
 risk_check() {
-	yellow_blod "[+] 风险&漏洞检查 "
+	yellow_blod "[+] 风险&漏洞检查"
 	#Redis弱密码检测
 	yellow_slim "[++] Redis弱密码检测"
 	bblue_slim "[Command]: cat /etc/redis/redis.conf 2>/dev/null | ag '(?<=requirepass )(test|123456|admin|root|12345678|111111|p@ssw0rd|test|qwerty|zxcvbnm|123123|12344321|123qwe|password|1qaz|000000|666666|888888)'"
@@ -830,18 +830,61 @@ risk_check() {
 }
 
 prerequisites_setting
-base_check
-network_check
-crontab_check
-env_check
-user_check
-service_check
-bash_check
-file_check
-rootkit_check
-ssh_check
-webshell_check
-poison_check
-miner_check
-rkhunter_install
-risk_check
+# base_check
+# network_check
+# crontab_check
+# env_check
+# user_check
+# service_check
+# bash_check
+# file_check
+# rootkit_check
+# ssh_check
+# webshell_check
+# poison_check
+# miner_check
+# rkhunter_install
+# risk_check
+
+
+select option in "系统基础配置检查" "网络&流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash 配置检查" "可疑文件检查" "Rootkit 检查" "SSH 检查" "Webshell 检查" "供应链投毒检测" "挖矿木马检查" "Rookit 查杀" "风险&漏洞检查" "退出脚本"
+do 
+	case $option in
+	"系统基础配置检查")
+        base_check  ;;
+	"网络&流量检查")
+		network_check ;;
+	"任务计划检查")
+		crontab_check ;;
+	"环境变量检查")
+		env_check ;;
+	"用户信息检查")
+		user_check ;;
+	"服务状态检查")
+		service_check ;;
+	"Bash 配置检查")
+		bash_check ;;
+	"可疑文件检查")
+		file_check ;;
+	"Rootkit 检查")
+		rootkit_check ;;
+	"SSH 检查")
+		ssh_check ;;
+	"Webshell 检查")
+		webshell_check ;;
+	"供应链投毒检测")
+		poison_check ;;
+	"挖矿木马检查")
+		miner_check ;;
+	"Rookit 查杀")
+		rkhunter_install ;;
+	"风险&漏洞检查")
+		risk_check ;;
+	"退出脚本")
+        break ;;
+	*)
+		clear
+		echo "sorry,wrong selection" ;;
+	esac
+done
+clear
