@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export PS3='[Press RETURN for menu, and select number, or 16 when quit] #? > '
+export PS3='[Press RETURN for menu, and select number, or 18 when quit] #? > '
 red_blod() {
 	echo -e "\x1b[1;31m$1\e[0m"
 }
@@ -280,8 +280,7 @@ base_check() {
 }
 
 network_check() {
-	yellow_blod "[+] 网络&流量检查"
-	# yellow_blod "[+] 网络&流量检查 "
+	yellow_blod "[+] 网络和流量检查"
 
 	#ifconfig
 	yellow_slim "[++] ifconfig"
@@ -514,7 +513,7 @@ service_check() {
 }
 
 bash_check() {
-	yellow_blod "[+] Bash 配置检查"
+	yellow_blod "[+] Bash配置检查"
 	#查看history文件
 	yellow_slim "[++] History"
 	bblue_slim "[Command]: ls -alht /root/.*_history"
@@ -597,7 +596,7 @@ file_check() {
 	echo -e "\n"
 
 	#隐藏文件
-	yellow_slim "[++] ...隐藏文件 "
+	yellow_slim "[++] 隐藏文件 "
 	bblue_slim "[Command]: find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -name ".*.""
 	find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -name ".*."
 	echo -e "\n"
@@ -690,7 +689,7 @@ rootkit_check() {
 }
 
 ssh_check() {
-	yellow_blod "[+] SSH 检查"
+	yellow_blod "[+] SSH检查"
 	#SSH 爆破IP
 	yellow_slim "[++] SSH爆破"
 	bblue_slim "[Command]: ag -a 'authentication failure' /var/log/secure* | awk '{print $14}' | awk -F '=' '{print $2}' | ag '\d+\.\d+\.\d+\.\d+' | sort | uniq -c | sort -nr | head -n 25"
@@ -743,7 +742,7 @@ ssh_check() {
 }
 
 webshell_check() {
-	yellow_blod "[+] Webshell 检查"
+	yellow_blod "[+] Webshell检查"
 	#PHP webshell查杀
 	yellow_slim "[++] PHP webshell查杀"
 	ag --php -l -s -i 'array_map\(|pcntl_exec\(|proc_open\(|popen\(|assert\(|phpspy|c99sh|milw0rm|eval?\(|\(gunerpress|\(base64_decoolcode|spider_bc|shell_exec\(|passthru\(|base64_decode\s?\(|gzuncompress\s?\(|gzinflate|\(\$\$\w+|call_user_func\(|call_user_func_array\(|preg_replace_callback\(|preg_replace\(|register_shutdown_function\(|register_tick_function\(|mb_ereg_replace_callback\(|filter_var\(|ob_start\(|usort\(|uksort\(|uasort\(|GzinFlate\s?\(|\$\w+\(\d+\)\.\$\w+\(\d+\)\.|\$\w+=str_replace\(|eval\/\*.*\*\/\(' $webpath
@@ -812,7 +811,7 @@ miner_check() {
 }
 
 rkhunter_install() {
-	yellow_blod "[+] Rookit 查杀"
+	yellow_blod "[+] Rookit查杀"
 	#Rkhunter查杀
 	yellow_slim "[++] Rkhunter查杀"
 	bblue_slim "[Command]: rkhunter --checkall --sk | ag -v 'OK|Not found|None found'"
@@ -847,6 +846,112 @@ risk_check() {
 	echo -e "\n"
 }
 
+
+helper() {
+	bblue_slim "-------------------------"
+	yellow_blod "[1] 系统基础配置检查"
+	yellow_slim "[++] 系统信息"
+	yellow_slim "[++] CPU使用率"
+	yellow_slim "[++] CPU TOP10"
+	yellow_slim "[++] 内存占用 TOP10"
+	yellow_slim "[++] 内存占用"
+	yellow_slim "[++] 剩余空间"
+	yellow_slim "[++] 硬盘挂载"
+	yellow_slim "[++] 常用软件"
+	yellow_slim "[++] /etc/hosts"
+	bblue_slim "-------------------------"
+	yellow_blod "[2] 网络和流量检查"
+	yellow_slim "[++] ifconfig"
+	yellow_slim "[++] 网络流量 "
+	yellow_slim "[++] 端口监听"
+	yellow_slim "[++] 对外开放端口"
+	yellow_slim "[++] 已建立的网络连接"
+	yellow_slim "[++] TCP连接状态"
+	yellow_slim "[++] 路由表"
+	yellow_slim "[++] 路由转发"
+	yellow_slim "[++] DNS Server"
+	yellow_slim "[++] ARP"
+	yellow_slim "[++] 网卡混杂模式"
+	yellow_slim "[++] IPTABLES防火墙"
+	bblue_slim "-------------------------"
+	yellow_blod "[3] 任务计划检查"
+	yellow_slim "[++] Crontab"
+	yellow_slim "[++] Crontab Backdoor "
+	bblue_slim "-------------------------"
+	yellow_blod "[4] 环境变量检查"
+	yellow_slim "[++] env"
+	yellow_slim "[++] PATH"
+	yellow_slim "[++] LD_PRELOAD"
+	yellow_slim "[++] LD_ELF_PRELOAD"
+	yellow_slim "[++] LD_AOUT_PRELOAD"
+	yellow_slim "[++] PROMPT_COMMAND"
+	yellow_slim "[++] LD_LIBRARY_PATH"
+	yellow_slim "[++] ld.so.preload"
+	bblue_slim "-------------------------"
+	yellow_blod "[5] 用户信息检查"
+	yellow_slim "[++] 可登陆的用户"
+	yellow_slim "[++] passwd文件修改日期"
+	yellow_slim "[++] sudoers(请注意NOPASSWD)"
+	yellow_slim "[++] 登录信息"
+	yellow_slim "[++] 登陆成功的IP"
+	bblue_slim "-------------------------"
+	yellow_blod "[6] 服务状态检查"
+	yellow_slim "[++] 正在运行的Service "
+	yellow_slim "[++] 最近添加的Service "
+	bblue_slim "-------------------------"
+	yellow_blod "[7] Bash配置检查"
+	yellow_slim "[++] History"
+	yellow_slim "[++] /etc/profile "
+	yellow_slim "[++] \$HOME/.profile "
+	yellow_slim "[++] /etc/rc.local "
+	yellow_slim "[++] ~/.bash_profile "
+	yellow_slim "[++] ~/.bashrc "
+	yellow_slim "[++] bash反弹shell "
+	bblue_slim "-------------------------"
+	yellow_blod "[8] 可疑文件检查"
+	yellow_slim "[++] 系统文件修改时间 "
+	yellow_slim "[++] 隐藏文件 "
+	yellow_slim "[++] /tmp "
+	yellow_slim "[++] alias "
+	yellow_slim "[++] SUID "
+	yellow_slim "[++] lsof +L1 "
+	yellow_slim "[++] 近七天文件改动 mtime "
+	yellow_slim "[++] 近七天文件改动 ctime "
+	yellow_slim "[++] 大文件>200mb "
+	yellow_slim "[++] 敏感文件 "
+	yellow_slim "[++] 可疑黑客文件 "
+	bblue_slim "-------------------------"
+	yellow_blod "[9] Rootkit检查"
+	yellow_slim "[++] lsmod 可疑模块"
+	yellow_slim "[++] Rootkit 内核模块"
+	yellow_slim "[++] 可疑的.ko模块"
+	bblue_slim "-------------------------"
+	yellow_blod "[10] SSH检查"
+	yellow_slim "[++] SSH爆破"
+	yellow_slim "[++] SSHD "
+	yellow_slim "[++] SSH 后门配置 "
+	yellow_slim "[++] SSH inetd后门检查 "
+	yellow_slim "[++] SSH key"
+	bblue_slim "-------------------------"
+	yellow_blod "[11] Webshell检查"
+	yellow_slim "[++] PHP webshell查杀"
+	yellow_slim "[++] JSP webshell查杀"
+	bblue_slim "-------------------------"
+	yellow_blod "[12] 供应链投毒检测"
+	yellow_slim "[++] Python2 pip 检测"
+	yellow_slim "[++] Python3 pip 检测"
+	bblue_slim "-------------------------"
+	yellow_blod "[13] 挖矿木马检查"
+	yellow_slim "[++] 常规挖矿进程检测"
+	yellow_slim "[++] Ntpclient 挖矿木马检测"
+	yellow_slim "[++] WorkMiner 挖矿木马检测"
+	bblue_slim "-------------------------"
+	yellow_blod "[14] Rookit查杀"
+	yellow_slim "[++] Rkhunter查杀"
+	bblue_slim "-------------------------"
+	yellow_blod "[15] 风险&漏洞检查"
+	yellow_slim "[++] Redis弱密码检测"
+}
 prerequisites_setting
 # base_check
 # network_check
@@ -865,44 +970,67 @@ prerequisites_setting
 # risk_check
 
 #Todo: 每个模块选择后自动把输出保存到文件
+if [ ! -d "./results" ];then
+	mkdir -p ./results
+fi
+result='./results'
 
-select option in "系统基础配置检查" "网络&流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash 配置检查" "可疑文件检查" "Rootkit 检查" "SSH 检查" "Webshell 检查" "供应链投毒检测" "挖矿木马检查" "Rookit 查杀" "风险&漏洞检查" "退出脚本"
+select option in "运行所有检查" "系统基础配置检查" "网络和流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash配置检查" "可疑文件检查" "Rootkit检查" "SSH检查" "Webshell检查" "供应链投毒检测" "挖矿木马检查" "Rookit查杀" "风险&漏洞检查" "脚本详细说明" "退出脚本"
 do 
 	case $option in
+		"运行所有检查")
+			log_file=$result/'all_check'_`date +%Y%m%d%H%M%S`_"$option".log
+			base_check | tee -a $log_file
+			network_check | tee -a $log_file
+			crontab_check | tee -a $log_file
+			env_check | tee -a $log_file
+			user_check | tee -a $log_file
+			service_check | tee -a $log_file
+			bash_check | tee -a $log_file
+			file_check | tee -a $log_file
+			rootkit_check | tee -a $log_file
+			ssh_check | tee -a $log_file
+			webshell_check | tee -a $log_file
+			poison_check | tee -a $log_file
+			miner_check | tee -a $log_file
+			rkhunter_install | tee -a $log_file
+			risk_check | tee -a $log_file
+			;;
 		"系统基础配置检查")
-			base_check | tee -a $option.log | less -e -B -R  ;;
-		"网络&流量检查")
-			network_check | tee -a $option.log | less -e -B -R  ;;
+			base_check | tee -a $result/'base_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"网络和流量检查")
+			network_check | tee -a $result/'network_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"任务计划检查")
-			crontab_check | tee -a $option.log | less -e -B -R  ;;
+			crontab_check | tee -a $result/'crontab_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"环境变量检查")
-			env_check | tee -a $option.log | less -e -B -R  ;;
+			env_check | tee -a $result/'env_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"用户信息检查")
-			user_check | tee -a $option.log | less -e -B -R  ;;
+			user_check | tee -a $result/'user_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"服务状态检查")
-			service_check | tee -a $option.log | less -e -B -R  ;;
-		"Bash 配置检查")
-			bash_check | tee -a $option.log | less -e -B -R  ;;
+			service_check | tee -a $result/'service_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"Bash配置检查")
+			bash_check | tee -a $result/'bash_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"可疑文件检查")
-			file_check | tee -a $option.log | less -e -B -R  ;;
-		"Rootkit 检查")
-			rootkit_check | tee -a $option.log | less -e -B -R  ;;
-		"SSH 检查")
-			ssh_check | tee -a $option.log | less -e -B -R  ;;
-		"Webshell 检查")
-			webshell_check | tee -a $option.log | less -e -B -R  ;;
+			file_check | tee -a $result/'file_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"Rootkit检查")
+			rootkit_check | tee -a $result/'rootkit_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"SSH检查")
+			ssh_check | tee -a $result/'ssh_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"Webshell检查")
+			webshell_check | tee -a $result/'webshell_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"供应链投毒检测")
-			poison_check | tee -a $option.log | less -e -B -R  ;;
+			poison_check | tee -a $result/'poison_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"挖矿木马检查")
-			miner_check | tee -a $option.log | less -e -B -R  ;;
-		"Rookit 查杀")
-			rkhunter_install | tee -a $option.log | less -e -B -R  ;;
+			miner_check | tee -a $result/'miner_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"Rookit查杀")
+			rkhunter_install | tee -a $result/'rkhunter_install'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"风险&漏洞检查")
-			risk_check | tee -a $option.log | less -e -B -R  ;;
+			risk_check | tee -a $result/'risk_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
+		"脚本详细说明")
+			helper | less -e -B -R  ;;
 		"退出脚本")
 			break ;;
 		*)
-			# clear
 			red_blod "Sorry, Wrong Selection, Please Input Number." ;;
 	esac
 done
