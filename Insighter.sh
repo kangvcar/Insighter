@@ -71,8 +71,6 @@ bblue_slim "[INFO] Hostname: $(hostname -s)"
 bblue_slim "[INFO] Operating System: $(hostnamectl | grep 'Operating' | cut -d: -f2)"
 bblue_slim "[INFO] Uptime: $(uptime | awk -F ',' '{print $1}')"
 bblue_slim "[INFO] Kernel Version: $(uname -r)"
-bblue_slim "[INFO] CPU Info: $(ag -o '(?<=model name\t: ).*' </proc/cpuinfo | head -n 1)"
-bblue_slim "[INFO] ALL IPAddress: $(ifconfig | ag -o '(?<=inet |inet addr:)\d+\.\d+\.\d+\.\d+' | ag -v '127.0.0.1' | tr '\n' '\t')"
 bblue_slim "[INFO] 检查结果保存目录：$result"
 
 
