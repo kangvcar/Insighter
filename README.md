@@ -1,5 +1,7 @@
 # Insighter
 
+系统洞察快速检测工具
+
 [![asciicast](https://asciinema.org/a/483508.svg)](https://asciinema.org/a/483508)
 
 ### 功能模块
