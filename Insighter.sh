@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
-export PS3='[press ENTER show menu] #?>'
+export PS3='[Press RETURN for menu, and select number, or 16 when quit] #? > '
 red_blod() {
 	echo -e "\x1b[1;31m$1\e[0m"
 }
 red_slim_flash() {
 	echo -e "\x1b[5;31m$1\e[0m"
 }
+red_slim() {
+	echo -e "\x1b[31m$1\e[0m"
+}
 green_blod() {
 	echo -e "\x1b[1;32m$1\e[0m"
 }
 green_slim() {
 	echo -e "\x1b[32m$1\e[0m"
+}
+green_flash() {
+	echo -e "\x1b[5;32m$1\e[0m"
 }
 yellow_blod() {
 	echo -e "\x1b[1;33m$1\e[0m"
@@ -116,26 +122,32 @@ prerequisites_setting() {
 	)
 	for prog in "${cmdline[@]}"; do
 
-	if [ $OS = 'Centos' ]; then
-		soft=$(rpm -q "$prog")
-		if echo "$soft" | grep -E '没有安装|未安装|not installed' >/dev/null 2>&1; then
-			yum install -y "$prog" >/dev/null 2>&1
-			if [ "$?"=="0" ];then
-				green_slim "[PASS] 成功安装 $prog"
-			else
-				red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
+		if [ $OS = 'Centos' ]; then
+			if [ "$prog" == "silversearcher-ag" ]; then
+				continue
+			fi
+			soft=$(rpm -q "$prog")
+			if echo "$soft" | grep -E '没有安装|未安装|not installed' >/dev/null 2>&1; then
+				yum install -y "$prog" >/dev/null 2>&1
+				if [ "$?" == "0" ];then
+					green_slim "[PASS] 成功安装 $prog"
+				else
+					red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
+				fi
+			fi
+		else
+			if [ "$prog" == "the_silver_searcher" ]; then
+				continue
+			fi
+			if dpkg -L $prog | grep 'does not contain any files' >/dev/null 2>&1; then
+				apt install -y "$prog" >/dev/null 2>&1
+				if [ "$?"=="0" ];then
+					green_slim "[PASS] 成功安装 $prog"
+				else
+					red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
+				fi
 			fi
 		fi
-	else
-		if dpkg -L $prog | grep 'does not contain any files' >/dev/null 2>&1; then
-			apt install -y "$prog" >/dev/null 2>&1
-			if [ "$?"=="0" ];then
-				green_slim "[PASS] 成功安装 $prog"
-			else
-				red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
-			fi
-		fi
-	fi
 	done
 	echo -e "\n"
 }
@@ -852,45 +864,46 @@ prerequisites_setting
 # rkhunter_install
 # risk_check
 
+#Todo: 每个模块选择后自动把输出保存到文件
 
 select option in "系统基础配置检查" "网络&流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash 配置检查" "可疑文件检查" "Rootkit 检查" "SSH 检查" "Webshell 检查" "供应链投毒检测" "挖矿木马检查" "Rookit 查杀" "风险&漏洞检查" "退出脚本"
 do 
 	case $option in
 		"系统基础配置检查")
-			base_check  ;;
+			base_check | tee -a $option.log | less -e -B -R  ;;
 		"网络&流量检查")
-			network_check ;;
+			network_check | tee -a $option.log | less -e -B -R  ;;
 		"任务计划检查")
-			crontab_check ;;
+			crontab_check | tee -a $option.log | less -e -B -R  ;;
 		"环境变量检查")
-			env_check ;;
+			env_check | tee -a $option.log | less -e -B -R  ;;
 		"用户信息检查")
-			user_check ;;
+			user_check | tee -a $option.log | less -e -B -R  ;;
 		"服务状态检查")
-			service_check ;;
+			service_check | tee -a $option.log | less -e -B -R  ;;
 		"Bash 配置检查")
-			bash_check ;;
+			bash_check | tee -a $option.log | less -e -B -R  ;;
 		"可疑文件检查")
-			file_check ;;
+			file_check | tee -a $option.log | less -e -B -R  ;;
 		"Rootkit 检查")
-			rootkit_check ;;
+			rootkit_check | tee -a $option.log | less -e -B -R  ;;
 		"SSH 检查")
-			ssh_check ;;
+			ssh_check | tee -a $option.log | less -e -B -R  ;;
 		"Webshell 检查")
-			webshell_check ;;
+			webshell_check | tee -a $option.log | less -e -B -R  ;;
 		"供应链投毒检测")
-			poison_check ;;
+			poison_check | tee -a $option.log | less -e -B -R  ;;
 		"挖矿木马检查")
-			miner_check ;;
+			miner_check | tee -a $option.log | less -e -B -R  ;;
 		"Rookit 查杀")
-			rkhunter_install ;;
+			rkhunter_install | tee -a $option.log | less -e -B -R  ;;
 		"风险&漏洞检查")
-			risk_check ;;
+			risk_check | tee -a $option.log | less -e -B -R  ;;
 		"退出脚本")
 			break ;;
 		*)
-			clear
-			echo "sorry,wrong selection" ;;
+			# clear
+			red_blod "Sorry, Wrong Selection, Please Input Number." ;;
 	esac
 done
 clear
