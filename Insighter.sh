@@ -61,6 +61,9 @@ bblue_slim "███  ███   ███          ███ ███    █
 bblue_slim "███  ███   ███    ▄█    ███ ███    ███    ███   ███    ███       ███       ███    ███   ███    ███      ";
 bblue_slim "█▀    ▀█   █▀   ▄████████▀  █▀     ████████▀    ███    █▀       ▄████▀     ██████████   ███    ███      ";
 bblue_slim "             Insighter -- 适用于 CentOS & Ubuntu 系统洞察快速检测工具  v1.0             ███    ███           ";
+echo -e "\n"
+bblue_slim "[INFO] Author: https://github.com/kangvcar/Insighter"
+bblue_slim "[INFO] Email: kangvcar@gmail.com"
 bblue_slim "[INFO] Starting ..."
 bblue_slim "[INFO] Current Web Root: $webpath ;如需指定请修改脚本中 webpath 变量"
 bblue_slim "[INFO] Current User: $(whoami)"
@@ -177,23 +180,27 @@ base_check() {
 	yellow_slim "[++] 系统信息"
 	#当前用户
 	echo -e "USER:\t\t$(whoami)" 2>/dev/null
+	#主机名
+	echo -e "Hostname: \t$(hostname -s)"
+	#发行版
+	echo -e "OS: \t\t$(hostnamectl | grep 'Operating' | cut -d: -f2)"
 	#版本信息
-	echo -e "OS Version:\t$(uname -r)"
+	echo -e "Kernel: \t$(uname -r)"
 	#主机名
 	echo -e "Hostname: \t$(hostname -s)"
 	#服务器SN
-	echo -e "服务器SN: \t$(dmidecode -t1 | ag -o '(?<=Serial Number: ).*')"
+	echo -e "Server SN: \t$(dmidecode -t1 | ag -o '(?<=Serial Number: ).*')"
 	#uptime
 	echo -e "Uptime: \t$(uptime | awk -F ',' '{print $1}')"
 	#系统负载
-	echo -e "系统负载: \t$(uptime | awk '{print $9" "$10" "$11" "$12" "$13}')"
+	echo -e "Loading: \t$(uptime | awk '{print $9" "$10" "$11" "$12" "$13}')"
 	#cpu信息
-	echo -e "CPU info:\t$(ag -o '(?<=model name\t: ).*' </proc/cpuinfo | head -n 1)"
+	echo -e "CPU Info:\t$(ag -o '(?<=model name\t: ).*' </proc/cpuinfo | head -n 1)"
 	#cpu核心
-	echo -e "CPU 核心:\t$(cat /proc/cpuinfo | grep 'processor' | sort | uniq | wc -l)"
+	echo -e "CPU Cores:\t$(cat /proc/cpuinfo | grep 'processor' | sort | uniq | wc -l)"
 	#ipaddress
 	ipaddress=$(ifconfig | ag -o '(?<=inet |inet addr:)\d+\.\d+\.\d+\.\d+' | ag -v '127.0.0.1') >/dev/null 2>&1
-	echo -e "IPADDR:\t\t${ipaddress}" | sed ":a;N;s/\n/ /g;ta"
+	echo -e "IPAddress:\t${ipaddress}" | sed ":a;N;s/\n/ /g;ta"
 	echo -e "\n"
 
 	#CPU使用率
@@ -207,14 +214,14 @@ base_check() {
 	echo -e "\n"
 
 	#登陆用户
-	yellow_slim "登陆用户"
+	yellow_slim "[++] 当前登录的用户 (tty为本地登录 / pts为远程登录)"
 	bblue_slim "[Command]: who"
 	who
 	echo -e "\n"
 
 	#CPU占用TOP 10
 	cpu=$(ps aux | grep -v ^'USER' | sort -rn -k3 | head -10) 2>/dev/null
-	yellow_slim "[++] CPU TOP10"
+	yellow_slim "[++] CPU使用率 TOP 10"
 	bblue_slim "[Command]: ps aux | grep -v ^'USER' | sort -rn -k3 | head -10 2>/dev/null"
 	echo -e "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
 	echo -e "${cpu}"
@@ -222,69 +229,73 @@ base_check() {
 
 	#内存占用TOP 10
 	mem=$(ps aux | grep -v ^'USER' | sort -rn -k4 | head -10) 2>/dev/null
-	yellow_slim "[++] 内存占用 TOP10"
+	yellow_slim "[++] 内存使用率 TOP 10"
 	bblue_slim "[Command]: ps aux | grep -v ^'USER' | sort -rn -k4 | head -10 2>/dev/null"
 	echo -e "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
 	echo -e "${mem}"
 	echo -e "\n"
 
 	#内存占用
-	yellow_slim "[++] 内存占用"
+	yellow_slim "[++] 系统内存使用情况"
 	bblue_slim "[Command]: free -mh"
 	free -mh
 	echo -e "\n"
 
 	#剩余空间
-	yellow_slim "[++] 剩余空间"
+	yellow_slim "[++] 磁盘剩余空间"
 	bblue_slim "[Command]: df -mh"
 	df -mh
 	echo -e "\n"
 
 	#硬盘挂载
-	yellow_slim "[++] 硬盘挂载"
+	yellow_slim "[++] 硬盘挂载条目 /etc/fstab"
 	bblue_slim "[Command]: ag -v '#' </etc/fstab | awk '{print \$1,\$2,\$3}'"
 	ag -v "#" </etc/fstab | awk '{print $1,$2,$3}'
 	echo -e "\n"
 
 	#安装软件
-	yellow_slim "[++] 常用软件"
+	yellow_slim "[++] 常用软件安装情况"
 	bblue_slim "[Command]: which (perl|gcc|g++|python|php|cc|go|node|nodejs|bind|tomcat|clang|ruby|curl|wget|mysql|redis|ssserver|vsftpd|java|apache|apache2|nginx|git|mongodb|docker|tftp|psql|kafka)"
 	cmdline=(
-		"which perl"
-		"which gcc"
-		"which g++"
-		"which python"
-		"which php"
-		"which cc"
-		"which go"
-		"which node"
-		"which nodejs"
-		"which bind"
-		"which tomcat"
-		"which clang"
-		"which ruby"
-		"which curl"
-		"which wget"
-		"which mysql"
-		"which redis"
-		"which ssserver"
-		"which vsftpd"
-		"which java"
-		"which apache"
-		"which apache2"
-		"which nginx"
-		"which git"
-		"which mongodb"
-		"which docker"
-		"which tftp"
-		"which psql"
-		"which kafka"
+		"perl"
+		"gcc"
+		"g++"
+		"python"
+		"php"
+		"cc"
+		"go"
+		"node"
+		"nodejs"
+		"bind"
+		"tomcat"
+		"clang"
+		"ruby"
+		"curl"
+		"wget"
+		"mysql"
+		"redis"
+		"ssserver"
+		"vsftpd"
+		"java"
+		"apache"
+		"apache2"
+		"nginx"
+		"git"
+		"mongodb"
+		"docker"
+		"tftp"
+		"psql"
+		"kafka"
 	)
 
 	for prog in "${cmdline[@]}"; do
-		soft=$($prog)
-		if [ "$soft" ] 2>/dev/null; then
-			echo -e "$soft" | ag -o '\w+$' --nocolor
+		# soft=$($prog)
+		which $prog >/dev/null 2>&1
+		if [ "$?" == "0" ]; then
+			red_slim "[Installed] $prog"
+		else
+			echo -e "[Uninstall] $prog"
+			# echo -e "$soft" | ag -o '\w+$' --nocolor
 		fi
 	done
 	echo -e "\n"
@@ -300,13 +311,13 @@ network_check() {
 	yellow_blod "[+] 网络和流量检查"
 
 	#ifconfig
-	yellow_slim "[++] ifconfig"
+	yellow_slim "[++] 网卡信息"
 	bblue_slim "[Command]: /sbin/ifconfig -a"
 	/sbin/ifconfig -a
 	echo -e "\n"
 
 	#网络流量
-	yellow_slim "[++] 网络流量 "
+	yellow_slim "[++] 各个网卡流量"
 	bblue_slim "[Command]: awk ' NR>2' /proc/net/dev"
 	echo "Interface    ByteRec   PackRec   ByteTran   PackTran"
 	awk ' NR>2' /proc/net/dev | while read line; do
@@ -330,14 +341,14 @@ network_check() {
 	echo -e "\n"
 
 	#网络连接
-	yellow_slim "[++] 已建立的网络连接"
+	yellow_slim "[++] 已建立的网络连接 (State: ESTABLISHED)"
 	bblue_slim "[Command]: netstat -antop | ag ESTAB"
 	echo -e "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name     Timer"
 	netstat -antop | ag ESTAB --nocolor
 	echo -e "\n"
 
 	#连接状态
-	yellow_slim "[++] TCP连接状态"
+	yellow_slim "[++] 已建立的TCP连接总数 (State: ESTABLISHED)"
 	bblue_slim "[Command]: netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'"
 	echo -e "State\tCount"
 	netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
@@ -350,7 +361,7 @@ network_check() {
 	echo -e "\n"
 
 	#路由转发
-	yellow_slim "[++] 路由转发"
+	yellow_slim "[++] 路由转发配置"
 	bblue_slim "[Command]: more /proc/sys/net/ipv4/ip_forward | awk -F: '{if ($1==1) print "1"}'"
 	ip_forward=$(more /proc/sys/net/ipv4/ip_forward | awk -F: '{if ($1==1) print "1"}')
 	if [ -n "$ip_forward" ]; then
@@ -361,13 +372,13 @@ network_check() {
 	echo -e "\n"
 
 	#DNS
-	yellow_slim "[++] DNS Server"
+	yellow_slim "[++] DNS 服务器信息"
 	bblue_slim "[Command]: ag -o '\d+\.\d+\.\d+\.\d+' --nocolor </etc/resolv.conf"
 	ag -o '\d+\.\d+\.\d+\.\d+' --nocolor </etc/resolv.conf
 	echo -e "\n"
 
 	#ARP
-	yellow_slim "[++] ARP"
+	yellow_slim "[++] ARP表"
 	bblue_slim "[Command]: arp -n -a"
 	arp -n -a
 	echo -e "\n"
@@ -390,9 +401,9 @@ network_check() {
 }
 
 crontab_check() {
-	yellow_blod "[+] 任务计划检查"
+	yellow_blod "[+] 计划任务检查"
 	#crontab
-	yellow_slim "[++] Crontab"
+	yellow_slim "[++] root用户的计划任务"
 	bblue_slim "[Command]: crontab -u root -l | ag -v '#'"
 	crontab -u root -l | ag -v '#' --nocolor
 	echo -e "\n"
@@ -402,7 +413,7 @@ crontab_check() {
 	echo -e "\n"
 
 	#crontab可疑命令
-	yellow_slim "[++] Crontab Backdoor "
+	yellow_slim "[++] Crontab可疑命令检查"
 	bblue_slim "[Command]: ag '((?:useradd|groupadd|chattr)|(?:wget\s|curl\s|tftp\s\-i|scp\s|sftp\s)|(?:bash\s\-i|fsockopen|nc\s\-e|sh\s\-i|\"/bin/sh\"|\"/bin/bash\"))' /etc/cron* /var/spool/cron/*"
 	ag '((?:useradd|groupadd|chattr)|(?:wget\s|curl\s|tftp\s\-i|scp\s|sftp\s)|(?:bash\s\-i|fsockopen|nc\s\-e|sh\s\-i|\"/bin/sh\"|\"/bin/bash\"))' /etc/cron* /var/spool/cron/* --nocolor
 	echo -e "\n"
@@ -411,7 +422,7 @@ crontab_check() {
 env_check() {
 	yellow_blod "[+] 环境变量检查"
 	#env
-	yellow_slim "[++] env"
+	yellow_slim "[++] 所有环境变量"
 	bblue_slim "[Command]: env"
 	env
 	echo -e "\n"
@@ -486,28 +497,35 @@ env_check() {
 
 user_check() {
 	yellow_blod "[+] 用户信息检查"
+	# 可登陆的用户
 	yellow_slim "[++] 可登陆的用户"
 	bblue_slim "[Command]: cat /etc/passwd | ag -v 'nologin$|false$'"
 	cat /etc/passwd | ag -v 'nologin$|false$'
 	echo -e "\n"
-	yellow_slim "[++] passwd文件修改日期"
+	# /etc/passwd文件修改日期
+	yellow_slim "[++] /etc/passwd文件修改日期"
 	bblue_slim "[Command]: stat /etc/passwd | ag -o '(?<=Modify:|最近更改：).*'"
 	stat /etc/passwd | ag -o '(?<=Modify:|最近更改：).*' --nocolor
 	echo -e "\n"
+	# sudoers(请注意NOPASSWD)
 	yellow_slim "[++] sudoers(请注意NOPASSWD)"
 	bblue_slim "[Command]: cat /etc/sudoers | ag -v '#' | sed -e '/^$/d' | ag ALL"
 	cat /etc/sudoers | ag -v '#' | sed -e '/^$/d' | ag ALL --nocolor
 	echo -e "\n"
-	yellow_slim "[++] 登录信息"
+	# 当前登录的用户
+	yellow_slim "[++] 当前登录的用户 (tty为本地登录 / pts为远程登录)"
 	bblue_slim "[Command]: w"
 	w
 	echo -e "\n"
-	bblue_slim "[Command]: last"
+	# 历史登录情况
+	bblue_slim "[Command]: 历史登录情况"
 	last
 	echo -e "\n"
-	bblue_slim "[Command]: lastlog"
+	# 所有用户最后一次登录情况
+	bblue_slim "[Command]: 所有用户最后一次登录情况"
 	lastlog
 	echo -e "\n"
+	# 登陆成功的IP
 	yellow_slim "[++] 登陆成功的IP"
 	bblue_slim "[Command]: ag -a accepted /var/log/secure /var/log/auth.* 2>/dev/null | ag -o '\d+\.\d+\.\d+\.\d+' | sort | uniq"
 	echo "$(ag -a accepted /var/log/secure /var/log/auth.* 2>/dev/null | ag -o '\d+\.\d+\.\d+\.\d+' | sort | uniq)"
@@ -516,11 +534,13 @@ user_check() {
 
 service_check() {
 	yellow_blod "[+] 服务状态检查"
-	yellow_slim "[++] 正在运行的Service "
+	# 正在运行的服务
+	yellow_slim "[++] 正在运行的服务"
 	bblue_slim "[Command]: systemctl -l | grep running | awk '{print \$1}'"
 	systemctl -l | grep running | awk '{print $1}'
 	echo -e "\n"
-	yellow_slim "[++] 最近添加的Service "
+	# 最近添加的服务
+	yellow_slim "[++] 最近添加的服务"
 	bblue_slim "[Command]: ls -alhtR /etc/systemd/system/multi-user.target.wants"
 	ls -alhtR /etc/systemd/system/multi-user.target.wants
 	echo -e "\n"
@@ -531,50 +551,66 @@ service_check() {
 
 bash_check() {
 	yellow_blod "[+] Bash配置检查"
-	#查看history文件
-	yellow_slim "[++] History"
+	# 查看history文件
+	yellow_slim "[++] 查看history文件"
 	bblue_slim "[Command]: ls -alht /root/.*_history"
 	ls -alht /root/.*_history
 	echo -e "\n"
 
+	# 检查history中的可疑命令
+	yellow_slim "[++] 检查history中的可疑命令"
 	bblue_slim "[Command]: cat ~/.*history | ag '(?<![0-9])(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))(?![0-9])|http://|https://|\bssh\b|\bscp\b|\.tar|\bwget\b|\bcurl\b|\bnc\b|\btelnet\b|\bbash\b|\bsh\b|\bchmod\b|\bchown\b|/etc/passwd|/etc/shadow|/etc/hosts|\bnmap\b|\bfrp\b|\bnfs\b|\bsshd\b|\bmodprobe\b|\blsmod\b|\bsudo\b' --nocolor | ag -v 'man\b|ag\b|cat\b|sed\b|git\b|docker\b|rm\b|touch\b|mv\b|\bapt\b|\bapt-get\b'"
 	cat ~/.*history | ag '(?<![0-9])(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))(?![0-9])|http://|https://|\bssh\b|\bscp\b|\.tar|\bwget\b|\bcurl\b|\bnc\b|\btelnet\b|\bbash\b|\bsh\b|\bchmod\b|\bchown\b|/etc/passwd|/etc/shadow|/etc/hosts|\bnmap\b|\bfrp\b|\bnfs\b|\bsshd\b|\bmodprobe\b|\blsmod\b|\bsudo\b' --nocolor | ag -v 'man\b|ag\b|cat\b|sed\b|git\b|docker\b|rm\b|touch\b|mv\b|\bapt\b|\bapt-get\b'
 	echo -e "\n"
 
-	#/etc/profile
-	yellow_slim "[++] /etc/profile "
-	bblue_slim "[Command]: cat /etc/profile | ag -v '#'"
-	cat /etc/profile | ag -v '#'
-	echo -e "\n"
-
-	# $HOME/.profile
-	yellow_slim "[++] \$HOME/.profile "
-	bblue_slim "[Command]: cat $HOME/.profile | ag -v '#'"
-	cat $HOME/.profile | ag -v '#'
-	echo -e "\n"
-
-	#/etc/rc.local
-	yellow_slim "[++] /etc/rc.local "
-	bblue_slim "[Command]: cat /etc/rc.local | ag -v '#'"
-	cat /etc/rc.local | ag -v '#'
-	echo -e "\n"
-
-	#~/.bash_profile
-	yellow_slim "[++] ~/.bash_profile "
-	bblue_slim "[Command]: cat ~/.bash_profile | ag -v '#'"
-	if [ -e "$HOME/.bash_profile" ]; then
-		cat ~/.bash_profile | ag -v '#'
+	# 查看/etc/profile文件
+	yellow_slim "[++] 查看/etc/profile文件"
+	bblue_slim "[Command]: cat /etc/profile | ag -v '#' | grep -v '^$'"
+	if [ -e "/etc/profile" ]; then
+		cat /etc/profile | ag -v '#' | grep -v '^$'
+	else
+		green_slim "[PASS]"
 	fi
 	echo -e "\n"
 
-	#~/.bashrc
-	yellow_slim "[++] ~/.bashrc "
-	bblue_slim "[Command]: cat ~/.bashrc | ag -v '#'"
-	cat ~/.bashrc | ag -v '#'
+	# 查看$HOME/.profile文件
+	yellow_slim "[++] 查看\$HOME/.profile文件"
+	bblue_slim "[Command]: cat $HOME/.profile | ag -v '#' | grep -v '^$'"
+	if [ -e "$HOME/.profile" ]; then
+		cat $HOME/.profile | ag -v '#' | grep -v '^$'
+	else
+		green_slim "[PASS]"
+	fi
 	echo -e "\n"
 
-	#bash反弹shell
-	yellow_slim "[++] bash反弹shell "
+	# 查看/etc/rc.local文件
+	yellow_slim "[++] 查看/etc/rc.local文件"
+	bblue_slim "[Command]: cat /etc/rc.local | ag -v '#' | grep -v '^$'"
+	if [ -e "/etc/rc.local" ]; then
+		cat /etc/rc.local | ag -v '#' | grep -v '^$'
+	else
+		green_slim "[PASS]"
+	fi
+	echo -e "\n"
+
+	# 查看~/.bash_profile文件
+	yellow_slim "[++] 查看~/.bash_profile文件"
+	bblue_slim "[Command]: cat ~/.bash_profile | ag -v '#' | grep -v '^$'"
+	if [ -e "$HOME/.bash_profile" ]; then
+		cat ~/.bash_profile | ag -v '#' | grep -v '^$'
+	else
+		green_slim "[PASS]"
+	fi
+	echo -e "\n"
+
+	# 查看~/.bashrc文件
+	yellow_slim "[++] 查看~/.bashrc文件"
+	bblue_slim "[Command]: cat ~/.bashrc | ag -v '#' | grep -v '^$'"
+	cat ~/.bashrc | ag -v '#' | grep -v '^$'
+	echo -e "\n"
+
+	# 检查bash反弹shell
+	yellow_slim "[++] 检查bash反弹shell"
 	bblue_slim "[Command]: ps -ef | ag 'bash -i' | ag -v 'ag' | awk '{print \$2}' | xargs -i{} lsof -p {} | ag 'ESTAB'"
 	bash_reverse_shell=$(ps -ef | ag 'bash -i' | ag -v 'ag' | awk '{print $2}' | xargs -i{} lsof -p {} | ag 'ESTAB' --nocolor)
 	if [ $bash_reverse_shell ];then
@@ -587,8 +623,9 @@ bash_check() {
 
 file_check() {
 	yellow_blod "[+] 可疑文件检查"
-	#系统文件修改时间
-	yellow_slim "[++] 系统文件修改时间 "
+
+	# 检查常用系统命令文件修改时间
+	yellow_slim "[++] 检查常用系统命令文件修改时间"
 	bblue_slim "[Command]: stat (/sbin/ifconfig|/bin/ls|/bin/login|/bin/netstat|/bin/top|/bin/ps|/bin/find|/bin/grep|/etc/passwd|/etc/shadow|/usr/bin/curl|/usr/bin/wget|/root/.ssh/authorized_keys)"
 	cmdline=(
 		"/sbin/ifconfig"
@@ -612,62 +649,68 @@ file_check() {
 	done
 	echo -e "\n"
 
-	#隐藏文件
-	yellow_slim "[++] 隐藏文件 "
+	# 检查系统隐藏文件
+	yellow_slim "[++] 检查系统隐藏文件"
 	bblue_slim "[Command]: find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -name ".*.""
-	find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -name ".*."
-	echo -e "\n"
+	hide_files=$(find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -name ".*.")
+	if [ $hide_files ];then
+		echo $hide_files
+	else
+		green_slim "[PASS]"
+	fi
+	echo -e "\n" 
 
-	#tmp目录
-	yellow_slim "[++] /tmp "
+	# 查看/tmp目录
+	yellow_slim "[++] 查看/tmp目录"
 	bblue_slim "[Command]: ls -alht /tmp /var/tmp /dev/shm "
 	ls -alht /tmp /var/tmp /dev/shm 
 	echo -e "\n"
 
-	#alias 别名
-	yellow_slim "[++] alias "
+	# 检查alias别名
+	yellow_slim "[++] 检查alias别名"
 	bblue_slim "[Command]: alias | ag -v 'git' "
 	alias | ag -v 'git'
 	echo -e "\n"
 
-	#SUID
-	yellow_slim "[++] SUID "
+	# 检查SUID
+	yellow_slim "[++] 检查SUID"
 	bblue_slim "[Command]: find / ! -path "/proc/*" -perm -004000 -type f | ag -v 'snap|docker|pam_timestamp_check|unix_chkpwd|ping|mount|su|pt_chown|ssh-keysign|at|passwd|chsh|crontab|chfn|usernetctl|staprun|newgrp|chage|dhcp|helper|pkexec|top|Xorg|nvidia-modprobe|quota|login|security_authtrampoline|authopen|traceroute6|traceroute|ps'"
 	find / ! -path "/proc/*" -perm -004000 -type f | ag -v 'snap|docker|pam_timestamp_check|unix_chkpwd|ping|mount|su|pt_chown|ssh-keysign|at|passwd|chsh|crontab|chfn|usernetctl|staprun|newgrp|chage|dhcp|helper|pkexec|top|Xorg|nvidia-modprobe|quota|login|security_authtrampoline|authopen|traceroute6|traceroute|ps'
 	echo -e "\n"
 
-	#进程存在但文件已经没有了
-	yellow_slim "[++] lsof +L1 "
+	# 检查进程存在但文件已经不存在的情况
+	yellow_slim "[++] 检查进程存在但文件已经不存在的情况"
 	bblue_slim "[Command]: lsof +L1"
 	lsof +L1
 	echo -e "\n"
 
-	#近7天改动
-	yellow_slim "[++] 近七天文件改动 mtime "
+	# 查找近7天改动的文件
+	yellow_slim "[++] 查找近7天改动的文件(mtime)"
 	bblue_slim "[Command]: find /etc /bin /lib /sbin /dev /root/ /home /tmp /var /usr ! -path "/var/log*" ! -path "/var/spool/exim4*" ! -path "/var/backups*" -mtime -7 -type f | ag -v '\.log|cache|vim|/share/|/lib/|.zsh|.gem|\.git|LICENSE|README|/_\w+\.\w+|\blogs\b|elasticsearch|nohup|i18n|vscode' | xargs -i{} ls -alh {}"
 	find /etc /bin /lib /sbin /dev /root/ /home /tmp /var /usr ! -path "/var/log*" ! -path "/var/spool/exim4*" ! -path "/var/backups*" -mtime -7 -type f | ag -v '\.log|cache|vim|/share/|/lib/|.zsh|.gem|\.git|LICENSE|README|/_\w+\.\w+|\blogs\b|elasticsearch|nohup|i18n|vscode' | xargs -i{} ls -alh {}
 	echo -e "\n"
 
-	#近7天改动
-	yellow_slim "[++] 近七天文件改动 ctime "
+	# 查找近7天改动的文件
+	yellow_slim "[++] 查找近7天改动的文件(ctime)"
 	bblue_slim "[Command]: find /etc /bin /lib /sbin /dev /root/ /home /tmp /var /usr ! -path "/var/log*" ! -path "/var/spool/exim4*" ! -path "/var/backups*" -ctime -7 -type f | ag -v '\.log|cache|vim|/share/|/lib/|.zsh|.gem|\.git|LICENSE|README|/_\w+\.\w+|\blogs\b|elasticsearch|nohup|i18n|vscode|git-core|perl5' | xargs -i{} ls -alh {}"
 	find /etc /bin /lib /sbin /dev /root/ /home /tmp /var /usr ! -path "/var/log*" ! -path "/var/spool/exim4*" ! -path "/var/backups*" -ctime -7 -type f | ag -v '\.log|cache|vim|/share/|/lib/|.zsh|.gem|\.git|LICENSE|README|/_\w+\.\w+|\blogs\b|elasticsearch|nohup|i18n|vscode|git-core|perl5' | xargs -i{} ls -alh {}
 	echo -e "\n"
 
-	#大文件200mb
-	#黑客可能会将数据库、网站打包成一个文件然后下载
-	yellow_slim "[++] 大文件>200mb "
+	# 查找大于200MB的文件
+	# 黑客可能会将数据库、网站打包成一个文件然后下载
+	yellow_slim "[++] 操作大于200MB的文件"
 	bblue_slim "[Command]: find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -size +200M -exec ls -alht {} + 2>/dev/null | ag '\.gif|\.jpeg|\.jpg|\.png|\.zip|\.tar.gz|\.tgz|\.7z|\.log|\.xz|\.rar|\.bak|\.old|\.sql|\.1|\.txt|\.tar|\.db|/\w+$' --nocolor | ag -v 'ib_logfile|ibd|mysql-bin|mysql-slow|ibdata1'"
 	find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -size +200M -exec ls -alht {} + 2>/dev/null | ag '\.gif|\.jpeg|\.jpg|\.png|\.zip|\.tar.gz|\.tgz|\.7z|\.log|\.xz|\.rar|\.bak|\.old|\.sql|\.1|\.txt|\.tar|\.db|/\w+$' --nocolor | ag -v 'ib_logfile|ibd|mysql-bin|mysql-slow|ibdata1'
 	echo -e "\n"
 
-	#敏感文件
-	yellow_slim "[++] 敏感文件 "
+	# 查找敏感文件
+	yellow_slim "[++] 查找敏感文件"
 	bblue_slim "[Command]: find / ! -path "/lib/modules*" ! -path "/usr/src*" ! -path "/snap*" ! -path "/usr/include/*" -regextype posix-extended -regex '.*sqlmap|.*msfconsole|.*\bncat|.*\bnmap|.*nikto|.*ettercap|.*tunnel\.(php|jsp|asp|py)|.*/nc\b|.*socks.(php|jsp|asp|py)|.*proxy.(php|jsp|asp|py)|.*brook.*|.*frps|.*frpc|.*aircrack|.*hydra|.*miner|.*/ew$' -type f | ag -v '/lib/python' | xargs -i{} ls -alh {}"
 	find / ! -path "/lib/modules*" ! -path "/usr/src*" ! -path "/snap*" ! -path "/usr/include/*" -regextype posix-extended -regex '.*sqlmap|.*msfconsole|.*\bncat|.*\bnmap|.*nikto|.*ettercap|.*tunnel\.(php|jsp|asp|py)|.*/nc\b|.*socks.(php|jsp|asp|py)|.*proxy.(php|jsp|asp|py)|.*brook.*|.*frps|.*frpc|.*aircrack|.*hydra|.*miner|.*/ew$' -type f | ag -v '/lib/python' | xargs -i{} ls -alh {}
 	echo -e "\n"
 
-	yellow_slim "[++] 可疑黑客文件 "
+	# 查找可疑黑客文件
+	yellow_slim "[++] 查找可疑黑客文件"
 	bblue_slim "[Command]: find /root /home /opt /tmp /var/ /dev -regextype posix-extended -regex '.*wget|.*curl|.*openssl|.*mysql' -type f 2>/dev/null | xargs -i{} ls -alh {} | ag -v '/pkgs/|/envs/'"
 	find /root /home /opt /tmp /var/ /dev -regextype posix-extended -regex '.*wget|.*curl|.*openssl|.*mysql' -type f 2>/dev/null | xargs -i{} ls -alh {} | ag -v '/pkgs/|/envs/'
 	echo -e "\n"
@@ -675,14 +718,14 @@ file_check() {
 
 rootkit_check() {
 	yellow_blod "[+] Rootkit检查"
-	#lsmod 可疑模块
-	yellow_slim "[++] lsmod 可疑模块"
+	# 检查lsmod可疑模块
+	yellow_slim "[++] 检查lsmod可疑模块"
 	bblue_slim "[Command]: lsmod | ag -v 'ablk_helper|ac97_bus|acpi_power_meter|aesni_intel|ahci|ata_generic|ata_piix|auth_rpcgss|binfmt_misc|bluetooth|bnep|bnx2|bridge|cdrom|cirrus|coretemp|crc_t10dif|crc32_pclmul|crc32c_intel|crct10dif_common|crct10dif_generic|crct10dif_pclmul|cryptd|dca|dcdbas|dm_log|dm_mirror|dm_mod|dm_region_hash|drm|drm_kms_helper|drm_panel_orientation_quirks|e1000|ebtable_broute|ebtable_filter|ebtable_nat|ebtables|edac_core|ext4|fb_sys_fops|floppy|fuse|gf128mul|ghash_clmulni_intel|glue_helper|grace|i2c_algo_bit|i2c_core|i2c_piix4|i7core_edac|intel_powerclamp|ioatdma|ip_set|ip_tables|ip6_tables|ip6t_REJECT|ip6t_rpfilter|ip6table_filter|ip6table_mangle|ip6table_nat|ip6ta ble_raw|ip6table_security|ipmi_devintf|ipmi_msghandler|ipmi_si|ipmi_ssif|ipt_MASQUERADE|ipt_REJECT|iptable_filter|iptable_mangle|iptable_nat|iptable_raw|iptable_security|iTCO_vendor_support|iTCO_wdt|jbd2|joydev|kvm|kvm_intel|libahci|libata|libcrc32c|llc|lockd|lpc_ich|lrw|mbcache|megaraid_sas|mfd_core|mgag200|Module|mptbase|mptscsih|mptspi|nf_conntrack|nf_conntrack_ipv4|nf_conntrack_ipv6|nf_defrag_ipv4|nf_defrag_ipv6|nf_nat|nf_nat_ipv4|nf_nat_ipv6|nf_nat_masquerade_ipv4|nfnetlink|nfnetlink_log|nfnetlink_queue|nfs_acl|nfsd|parport|parport_pc|pata_acpi|pcspkr|ppdev|rfkill|sch_fq_codel|scsi_transport_spi|sd_mod|serio_raw|sg|shpchp|snd|snd_ac97_codec|snd_ens1371|snd_page_alloc|snd_pcm|snd_rawmidi|snd_seq|snd_seq_device|snd_seq_midi|snd_seq_midi_event|snd_timer|soundcore|sr_mod|stp|sunrpc|syscopyarea|sysfillrect|sysimgblt|tcp_lp|ttm|tun|uvcvideo|videobuf2_core|videobuf2_memops|videobuf2_vmalloc|videodev|virtio|virtio_balloon|virtio_console|virtio_net|virtio_pci|virtio_ring|virtio_scsi|vmhgfs|vmw_balloon|vmw_vmci|vmw_vsock_vmci_transport|vmware_balloon|vmwgfx|vsock|xfs|xt_CHECKSUM|xt_conntrack|xt_state|raid*|tcpbbr|btrfs|.*diag|psmouse|ufs|linear|msdos|cpuid|veth|xt_tcpudp|xfrm_user|xfrm_algo|xt_addrtype|br_netfilter|input_leds|sch_fq|ib_iser|rdma_cm|iw_cm|ib_cm|ib_core|.*scsi.*|tcp_bbr|pcbc|autofs4|multipath|hfs.*|minix|ntfs|vfat|jfs|usbcore|usb_common|ehci_hcd|uhci_hcd|ecb|crc32c_generic|button|hid|usbhid|evdev|hid_generic|overlay|xt_nat|qnx4|sb_edac|acpi_cpufreq|ixgbe|pf_ring|tcp_htcp|cfg80211|x86_pkg_temp_thermal|mei_me|mei|processor|thermal_sys|lp|enclosure|ses|ehci_pci|igb|i2c_i801|pps_core|isofs|nls_utf8|xt_REDIRECT|xt_multiport|iosf_mbi|qxl|cdc_ether|usbnet'"
 	lsmod | ag -v "ablk_helper|ac97_bus|acpi_power_meter|aesni_intel|ahci|ata_generic|ata_piix|auth_rpcgss|binfmt_misc|bluetooth|bnep|bnx2|bridge|cdrom|cirrus|coretemp|crc_t10dif|crc32_pclmul|crc32c_intel|crct10dif_common|crct10dif_generic|crct10dif_pclmul|cryptd|dca|dcdbas|dm_log|dm_mirror|dm_mod|dm_region_hash|drm|drm_kms_helper|drm_panel_orientation_quirks|e1000|ebtable_broute|ebtable_filter|ebtable_nat|ebtables|edac_core|ext4|fb_sys_fops|floppy|fuse|gf128mul|ghash_clmulni_intel|glue_helper|grace|i2c_algo_bit|i2c_core|i2c_piix4|i7core_edac|intel_powerclamp|ioatdma|ip_set|ip_tables|ip6_tables|ip6t_REJECT|ip6t_rpfilter|ip6table_filter|ip6table_mangle|ip6table_nat|ip6ta ble_raw|ip6table_security|ipmi_devintf|ipmi_msghandler|ipmi_si|ipmi_ssif|ipt_MASQUERADE|ipt_REJECT|iptable_filter|iptable_mangle|iptable_nat|iptable_raw|iptable_security|iTCO_vendor_support|iTCO_wdt|jbd2|joydev|kvm|kvm_intel|libahci|libata|libcrc32c|llc|lockd|lpc_ich|lrw|mbcache|megaraid_sas|mfd_core|mgag200|Module|mptbase|mptscsih|mptspi|nf_conntrack|nf_conntrack_ipv4|nf_conntrack_ipv6|nf_defrag_ipv4|nf_defrag_ipv6|nf_nat|nf_nat_ipv4|nf_nat_ipv6|nf_nat_masquerade_ipv4|nfnetlink|nfnetlink_log|nfnetlink_queue|nfs_acl|nfsd|parport|parport_pc|pata_acpi|pcspkr|ppdev|rfkill|sch_fq_codel|scsi_transport_spi|sd_mod|serio_raw|sg|shpchp|snd|snd_ac97_codec|snd_ens1371|snd_page_alloc|snd_pcm|snd_rawmidi|snd_seq|snd_seq_device|snd_seq_midi|snd_seq_midi_event|snd_timer|soundcore|sr_mod|stp|sunrpc|syscopyarea|sysfillrect|sysimgblt|tcp_lp|ttm|tun|uvcvideo|videobuf2_core|videobuf2_memops|videobuf2_vmalloc|videodev|virtio|virtio_balloon|virtio_console|virtio_net|virtio_pci|virtio_ring|virtio_scsi|vmhgfs|vmw_balloon|vmw_vmci|vmw_vsock_vmci_transport|vmware_balloon|vmwgfx|vsock|xfs|xt_CHECKSUM|xt_conntrack|xt_state|raid*|tcpbbr|btrfs|.*diag|psmouse|ufs|linear|msdos|cpuid|veth|xt_tcpudp|xfrm_user|xfrm_algo|xt_addrtype|br_netfilter|input_leds|sch_fq|ib_iser|rdma_cm|iw_cm|ib_cm|ib_core|.*scsi.*|tcp_bbr|pcbc|autofs4|multipath|hfs.*|minix|ntfs|vfat|jfs|usbcore|usb_common|ehci_hcd|uhci_hcd|ecb|crc32c_generic|button|hid|usbhid|evdev|hid_generic|overlay|xt_nat|qnx4|sb_edac|acpi_cpufreq|ixgbe|pf_ring|tcp_htcp|cfg80211|x86_pkg_temp_thermal|mei_me|mei|processor|thermal_sys|lp|enclosure|ses|ehci_pci|igb|i2c_i801|pps_core|isofs|nls_utf8|xt_REDIRECT|xt_multiport|iosf_mbi|qxl|cdc_ether|usbnet"
 	echo -e "\n"
 	
-	#Rootkit 内核模块
-	yellow_slim "[++] Rootkit 内核模块"
+	# 检查Rootkit内核模块
+	yellow_slim "[++] 检查Rootkit内核模块"
 	bblue_slim "[Command]: grep -E 'hide_tcp4_port|hidden_files|hide_tcp6_port|diamorphine|module_hide|module_hidden|is_invisible|hacked_getdents|hacked_kill|heroin|kernel_unlink|hide_module|find_sys_call_tbl|h4x_delete_module|h4x_getdents64|h4x_kill|h4x_tcp4_seq_show|new_getdents|old_getdents|should_hide_file_name|should_hide_task_name' </proc/kallsyms"
 	kernel=$(grep -E 'hide_tcp4_port|hidden_files|hide_tcp6_port|diamorphine|module_hide|module_hidden|is_invisible|hacked_getdents|hacked_kill|heroin|kernel_unlink|hide_module|find_sys_call_tbl|h4x_delete_module|h4x_getdents64|h4x_kill|h4x_tcp4_seq_show|new_getdents|old_getdents|should_hide_file_name|should_hide_task_name' </proc/kallsyms)
 	if [ -n "$kernel" ]; then
@@ -693,8 +736,8 @@ rootkit_check() {
 	fi
 	echo -e "\n"
 
-	#可疑的.ko模块
-	yellow_slim "[++] 可疑的.ko模块"
+	# 查找可疑的.ko模块
+	yellow_slim "[++] 查找可疑的.ko模块"
 	bblue_slim "[Command]: find / ! -path "/proc/*" ! -path "/usr/lib/modules/*" ! -path "/boot/*" -regextype posix-extended -regex '.*\.ko'"
 	ko_module=$(find / ! -path "/proc/*" ! -path "/usr/lib/modules/*" ! -path "/boot/*" -regextype posix-extended -regex '.*\.ko')
 	if [ $ko_module ];then
@@ -707,8 +750,9 @@ rootkit_check() {
 
 ssh_check() {
 	yellow_blod "[+] SSH检查"
-	#SSH 爆破IP
-	yellow_slim "[++] SSH爆破"
+
+	# 检查SSH爆破IP
+	yellow_slim "[++] 检查SSH爆破IP"
 	bblue_slim "[Command]: ag -a 'authentication failure' /var/log/secure* | awk '{print $14}' | awk -F '=' '{print $2}' | ag '\d+\.\d+\.\d+\.\d+' | sort | uniq -c | sort -nr | head -n 25"
 	bblue_slim "[Command]: ag -a 'authentication failure' /var/log/auth.* | awk '{print $14}' | awk -F '=' '{print $2}' | ag '\d+\.\d+\.\d+\.\d+' | sort | uniq -c | sort -nr | head -n 25"
 	if [ $OS = 'Centos' ]; then
@@ -718,26 +762,26 @@ ssh_check() {
 	fi
 	echo -e "\n"
 
-	#SSHD
-	yellow_slim "[++] SSHD "
+	# 检查SSHD程序
+	yellow_slim "[++] 检查SSHD程序"
 	bblue_slim "[Command]: stat /usr/sbin/sshd"
 	stat /usr/sbin/sshd
 	echo -e "\n"
 
-	#SSH 后门配置检查
-	yellow_slim "[++] SSH 后门配置 "
+	# 检查SSH后门配置
+	yellow_slim "[++] SSH 检查SSH后门配置"
 	bblue_slim "[Command]: grep LocalCommand <~/.ssh/config"
 	bblue_slim "[Command]: grep ProxyCommand <~/.ssh/config"
 	if [ -e "$HOME/.ssh/config" ]; then
 		grep LocalCommand <~/.ssh/config
 		grep ProxyCommand <~/.ssh/config
 	else
-		green_slim "[PASS] 未发现SSH 后门配置文件"
+		green_slim "[PASS] 未发现SSH后门配置文件"
 	fi
 	echo -e "\n"
 
-	#SSH inetd后门检查
-	yellow_slim "[++] SSH inetd后门检查 "
+	# 检查SSH inetd后门
+	yellow_slim "[++] 检查SSH inetd后门"
 	bblue_slim "[Command]: grep -E '(bash -i)' </etc/inetd.conf"
 	if [ -e "/etc/inetd.conf" ]; then
 		grep -E '(bash -i)' </etc/inetd.conf
@@ -746,8 +790,8 @@ ssh_check() {
 	fi
 	echo -e "\n"
 
-	#SSH key
-	yellow_slim "[++] SSH key"
+	# 检查SSH key文件
+	yellow_slim "[++] 检查SSH key文件"
 	bblue_slim "[Command]: cat /root/.ssh/authorized_keys"
 	sshkey=${HOME}/.ssh/authorized_keys
 	if [ -e "${sshkey}" ]; then
@@ -760,7 +804,8 @@ ssh_check() {
 
 webshell_check() {
 	yellow_blod "[+] Webshell检查"
-	#PHP webshell查杀
+
+	# PHP webshell查杀
 	yellow_slim "[++] PHP webshell查杀"
 	ag --php -l -s -i 'array_map\(|pcntl_exec\(|proc_open\(|popen\(|assert\(|phpspy|c99sh|milw0rm|eval?\(|\(gunerpress|\(base64_decoolcode|spider_bc|shell_exec\(|passthru\(|base64_decode\s?\(|gzuncompress\s?\(|gzinflate|\(\$\$\w+|call_user_func\(|call_user_func_array\(|preg_replace_callback\(|preg_replace\(|register_shutdown_function\(|register_tick_function\(|mb_ereg_replace_callback\(|filter_var\(|ob_start\(|usort\(|uksort\(|uasort\(|GzinFlate\s?\(|\$\w+\(\d+\)\.\$\w+\(\d+\)\.|\$\w+=str_replace\(|eval\/\*.*\*\/\(' $webpath
 	ag --php -l -s -i '^(\xff\xd8|\x89\x50|GIF89a|GIF87a|BM|\x00\x00\x01\x00\x01)[\s\S]*<\?\s*php' $webpath
@@ -770,21 +815,22 @@ webshell_check() {
 	ag --php -l -s -i "\b(assert|eval|system|exec|shell_exec|passthru|popen|proc_open|pcntl_exec|include)\b\s*\(\s*(file_get_contents\s*\(\s*)?[\'\"]php:\/\/input" $webpath
 	echo -e "\n"
 	
-	#JSP webshell查杀
+	# JSP webshell查杀
 	yellow_slim "[++] JSP webshell查杀"
 	ag --jsp -l -s -i '<%@\spage\simport=[\s\S]*\\u00\d+\\u00\d+|<%@\spage\simport=[\s\S]*Runtime.getRuntime\(\).exec\(request.getParameter\(|Runtime.getRuntime\(\)' $webpath
 	echo -e "\n"
 }
 
 poison_check() {
-	yellow_blod "[+] 供应链投毒检测"
-	#Python2 pip 检测
+	yellow_blod "[+] pip投毒检测"
+
+	# Python2 pip 检测
 	yellow_slim "[++] Python2 pip 检测"
 	bblue_slim "[Command]: pip freeze | ag 'istrib|djanga|easyinstall|junkeldat|libpeshka|mumpy|mybiubiubiu|nmap-python|openvc|python-ftp|pythonkafka|python-mongo|python-mysql|python-mysqldb|python-openssl|python-sqlite|virtualnv|mateplotlib|request='"
 	pip freeze | ag "istrib|djanga|easyinstall|junkeldat|libpeshka|mumpy|mybiubiubiu|nmap-python|openvc|python-ftp|pythonkafka|python-mongo|python-mysql|python-mysqldb|python-openssl|python-sqlite|virtualnv|mateplotlib|request="
 	echo -e "\n"
 
-	#Python3 pip 检测
+	# Python3 pip 检测
 	yellow_slim "[++] Python3 pip 检测"
 	bblue_slim "[Command]: pip3 freeze | ag 'istrib|djanga|easyinstall|junkeldat|libpeshka|mumpy|mybiubiubiu|nmap-python|openvc|python-ftp|pythonkafka|python-mongo|python-mysql|python-mysqldb|python-openssl|python-sqlite|virtualnv|mateplotlib|request='"
 	pip3 freeze | ag "istrib|djanga|easyinstall|junkeldat|libpeshka|mumpy|mybiubiubiu|nmap-python|openvc|python-ftp|pythonkafka|python-mongo|python-mysql|python-mysqldb|python-openssl|python-sqlite|virtualnv|mateplotlib|request="
@@ -793,7 +839,7 @@ poison_check() {
 
 miner_check() {
 	yellow_blod "[+] 挖矿木马检查"
-	#常规挖矿进程检测
+	# 常规挖矿进程检测
 	yellow_slim "[++] 常规挖矿进程检测"
 	normal_miner_1=$(ps aux | ag "systemctI|kworkerds|init10.cfg|wl.conf|crond64|watchbog|sustse|donate|proxkekman|test.conf|/var/tmp/apple|/var/tmp/big|/var/tmp/small|/var/tmp/cat|/var/tmp/dog|/var/tmp/mysql|/var/tmp/sishen|ubyx|cpu.c|tes.conf|psping|/var/tmp/java-c|pscf|cryptonight|sustes|xmrig|xmr-stak|suppoie|ririg|/var/tmp/ntpd|/var/tmp/ntp|/var/tmp/qq|/tmp/qq|/var/tmp/aa|gg1.conf|hh1.conf|apaqi|dajiba|/var/tmp/look|/var/tmp/nginx|dd1.conf|kkk1.conf|ttt1.conf|ooo1.conf|ppp1.conf|lll1.conf|yyy1.conf|1111.conf|2221.conf|dk1.conf|kd1.conf|mao1.conf|YB1.conf|2Ri1.conf|3Gu1.conf|crant|nicehash|linuxs|linuxl|Linux|crawler.weibo|stratum|gpg-daemon|jobs.flu.cc|cranberry|start.sh|watch.sh|krun.sh|killTop.sh|cpuminer|/60009|ssh_deny.sh|clean.sh|\./over|mrx1|redisscan|ebscan|barad_agent|\.sr0|clay|udevs|\.sshd|/tmp/init|xmr|xig|ddgs|minerd|hashvault|geqn|\.kthreadd|httpdz|pastebin.com|sobot.com|kerbero|2t3ik|ddgs|qW3xt|ztctb" | ag -v 'ag')
 	normal_miner_2=$(find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/run/*" ! -path "/boot/*" -regextype posix-extended -regex '.*systemctI|.*kworkerds|.*init10.cfg|.*wl.conf|.*crond64|.*watchbog|.*sustse|.*donate|.*proxkekman|.*cryptonight|.*sustes|.*xmrig|.*xmr-stak|.*suppoie|.*ririg|gg1.conf|.*cpuminer|.*xmr|.*xig|.*ddgs|.*minerd|.*hashvault|\.kthreadd|.*httpdz|.*kerbero|.*2t3ik|.*qW3xt|.*ztctb|.*miner.sh' -type f)
@@ -804,7 +850,7 @@ miner_check() {
 	fi
 	echo -e "\n"
 
-	#Ntpclient 挖矿木马检测
+	# Ntpclient 挖矿木马检测
 	yellow_slim "[++] Ntpclient 挖矿木马检测"
 	ntpclient_miner_1=$(find / ! -path "/proc/*" ! -path "/sys/*" ! -path "/boot/*" -regextype posix-extended -regex 'ntpclient|Mozz')
 	ntpclient_miner_1=$(ls -alh /tmp/.a /var/tmp/.a /run/shm/a /dev/.a /dev/shm/.a 2>/dev/null)
@@ -815,7 +861,7 @@ miner_check() {
 	fi
 	echo -e "\n"
 
-	#WorkMiner 挖矿木马检测
+	# WorkMiner 挖矿木马检测
 	yellow_slim "[++] WorkMiner 挖矿木马检测"
 	work_miner_1=$(ps aux | ag "work32|work64|/tmp/secure.sh|/tmp/auth.sh" | ag -v 'ag')
 	work_miner_2=$(ls -alh /tmp/xmr /tmp/config.json /tmp/secure.sh /tmp/auth.sh /usr/.work/work64 2>/dev/null)
@@ -866,34 +912,35 @@ risk_check() {
 
 
 helper() {
-	yellow_blod "[1] 系统基础配置检查"
+	yellow_blod "[2] 系统基础配置检查"
 	yellow_slim "[++] 系统信息"
 	yellow_slim "[++] CPU使用率"
-	yellow_slim "[++] CPU TOP10"
-	yellow_slim "[++] 内存占用 TOP10"
-	yellow_slim "[++] 内存占用"
-	yellow_slim "[++] 剩余空间"
-	yellow_slim "[++] 硬盘挂载"
-	yellow_slim "[++] 常用软件"
+	yellow_slim "[++] 当前登录的用户 (tty为本地登录 / pts为远程登录)"
+	yellow_slim "[++] CPU使用率 TOP 10"
+	yellow_slim "[++] 内存使用率 TOP 10"
+	yellow_slim "[++] 系统内存使用情况"
+	yellow_slim "[++] 磁盘剩余空间"
+	yellow_slim "[++] 硬盘挂载条目 /etc/fstab"
+	yellow_slim "[++] 常用软件安装情况"
 	yellow_slim "[++] /etc/hosts"
-	yellow_blod "[2] 网络和流量检查"
-	yellow_slim "[++] ifconfig"
-	yellow_slim "[++] 网络流量 "
+	yellow_blod "[3] 网络和流量检查"
+	yellow_slim "[++] 网卡信息"
+	yellow_slim "[++] 各个网卡流量"
 	yellow_slim "[++] 端口监听"
 	yellow_slim "[++] 对外开放端口"
-	yellow_slim "[++] 已建立的网络连接"
-	yellow_slim "[++] TCP连接状态"
+	yellow_slim "[++] 已建立的网络连接 (State: ESTABLISHED)"
+	yellow_slim "[++] 已建立的TCP连接总数 (State: ESTABLISHED)"
 	yellow_slim "[++] 路由表"
-	yellow_slim "[++] 路由转发"
-	yellow_slim "[++] DNS Server"
-	yellow_slim "[++] ARP"
+	yellow_slim "[++] 路由转发配置"
+	yellow_slim "[++] DNS 服务器信息"
+	yellow_slim "[++] ARP表"
 	yellow_slim "[++] 网卡混杂模式"
 	yellow_slim "[++] IPTABLES防火墙"
-	yellow_blod "[3] 任务计划检查"
-	yellow_slim "[++] Crontab"
-	yellow_slim "[++] Crontab Backdoor "
-	yellow_blod "[4] 环境变量检查"
-	yellow_slim "[++] env"
+	yellow_blod "[4] 计划任务检查"
+	yellow_slim "[++] root用户的计划任务"
+	yellow_slim "[++] Crontab可疑命令检查"
+	yellow_blod "[5] 环境变量检查"
+	yellow_slim "[++] 所有环境变量"
 	yellow_slim "[++] PATH"
 	yellow_slim "[++] LD_PRELOAD"
 	yellow_slim "[++] LD_ELF_PRELOAD"
@@ -901,58 +948,59 @@ helper() {
 	yellow_slim "[++] PROMPT_COMMAND"
 	yellow_slim "[++] LD_LIBRARY_PATH"
 	yellow_slim "[++] ld.so.preload"
-	yellow_blod "[5] 用户信息检查"
+	yellow_blod "[6] 用户信息检查"
 	yellow_slim "[++] 可登陆的用户"
-	yellow_slim "[++] passwd文件修改日期"
+	yellow_slim "[++] /etc/passwd文件修改日期"
 	yellow_slim "[++] sudoers(请注意NOPASSWD)"
-	yellow_slim "[++] 登录信息"
+	yellow_slim "[++] 当前登录的用户 (tty为本地登录 / pts为远程登录)"
 	yellow_slim "[++] 登陆成功的IP"
-	yellow_blod "[6] 服务状态检查"
-	yellow_slim "[++] 正在运行的Service "
-	yellow_slim "[++] 最近添加的Service "
-	yellow_blod "[7] Bash配置检查"
-	yellow_slim "[++] History"
-	yellow_slim "[++] /etc/profile "
-	yellow_slim "[++] \$HOME/.profile "
-	yellow_slim "[++] /etc/rc.local "
-	yellow_slim "[++] ~/.bash_profile "
-	yellow_slim "[++] ~/.bashrc "
-	yellow_slim "[++] bash反弹shell "
-	yellow_blod "[8] 可疑文件检查"
-	yellow_slim "[++] 系统文件修改时间 "
-	yellow_slim "[++] 隐藏文件 "
-	yellow_slim "[++] /tmp "
-	yellow_slim "[++] alias "
-	yellow_slim "[++] SUID "
-	yellow_slim "[++] lsof +L1 "
-	yellow_slim "[++] 近七天文件改动 mtime "
-	yellow_slim "[++] 近七天文件改动 ctime "
-	yellow_slim "[++] 大文件>200mb "
-	yellow_slim "[++] 敏感文件 "
-	yellow_slim "[++] 可疑黑客文件 "
-	yellow_blod "[9] Rootkit检查"
-	yellow_slim "[++] lsmod 可疑模块"
-	yellow_slim "[++] Rootkit 内核模块"
-	yellow_slim "[++] 可疑的.ko模块"
-	yellow_blod "[10] SSH检查"
-	yellow_slim "[++] SSH爆破"
-	yellow_slim "[++] SSHD "
-	yellow_slim "[++] SSH 后门配置 "
-	yellow_slim "[++] SSH inetd后门检查 "
-	yellow_slim "[++] SSH key"
-	yellow_blod "[11] Webshell检查"
+	yellow_blod "[7] 服务状态检查"
+	yellow_slim "[++] 正在运行的服务"
+	yellow_slim "[++] 最近添加的服务"
+	yellow_blod "[8] Bash配置检查"
+	yellow_slim "[++] 查看history文件"
+	yellow_slim "[++] 检查history中的可疑命令"
+	yellow_slim "[++] 查看/etc/profile文件"
+	yellow_slim "[++] 查看\$HOME/.profile文件"
+	yellow_slim "[++] 查看/etc/rc.local文件"
+	yellow_slim "[++] 查看~/.bash_profile文件"
+	yellow_slim "[++] 查看~/.bashrc文件"
+	yellow_slim "[++] 检查bash反弹shell"
+	yellow_blod "[9] 可疑文件检查"
+	yellow_slim "[++] 检查常用系统命令文件修改时间"
+	yellow_slim "[++] 检查系统隐藏文件"
+	yellow_slim "[++] 查看/tmp目录"
+	yellow_slim "[++] 检查alias别名"
+	yellow_slim "[++] 检查SUID"
+	yellow_slim "[++] 检查进程存在但文件已经不存在的情况"
+	yellow_slim "[++] 查找近7天改动的文件(mtime)"
+	yellow_slim "[++] 查找近7天改动的文件(ctime)"
+	yellow_slim "[++] 操作大于200MB的文件"
+	yellow_slim "[++] 查找敏感文件"
+	yellow_slim "[++] 查找可疑黑客文件"
+	yellow_blod "[10] Rootkit检查"
+	yellow_slim "[++] 检查lsmod可疑模块"
+	yellow_slim "[++] 检查Rootkit内核模块"
+	yellow_slim "[++] 查找可疑的.ko模块"
+	yellow_blod "[11] SSH检查"
+	yellow_slim "[++] 检查SSH爆破IP"
+	yellow_slim "[++] 检查SSHD程序"
+	yellow_slim "[++] SSH 检查SSH后门配置"
+	yellow_slim "[++] 检查SSH inetd后门"
+	yellow_slim "[++] 检查SSH key文件"
+	yellow_blod "[12] Webshell检查"
 	yellow_slim "[++] PHP webshell查杀"
 	yellow_slim "[++] JSP webshell查杀"
-	yellow_blod "[12] 供应链投毒检测"
+	yellow_blod "[13] pip投毒检测"
 	yellow_slim "[++] Python2 pip 检测"
 	yellow_slim "[++] Python3 pip 检测"
-	yellow_blod "[13] 挖矿木马检查"
+	yellow_blod "[14] 挖矿木马检查"
 	yellow_slim "[++] 常规挖矿进程检测"
 	yellow_slim "[++] Ntpclient 挖矿木马检测"
 	yellow_slim "[++] WorkMiner 挖矿木马检测"
-	yellow_blod "[14] Rookit查杀"
+	yellow_blod "[15] Rookit查杀"
 	yellow_slim "[++] Rkhunter查杀"
-	yellow_blod "[15] 风险漏洞检查"
+	yellow_blod "[16] 风险漏洞检查"
 	yellow_slim "[++] Redis弱密码检测"
 }
 
@@ -975,7 +1023,7 @@ prerequisites_setting
 
 
 
-select option in "运行所有检查" "系统基础配置检查" "网络和流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash配置检查" "可疑文件检查" "Rootkit检查" "SSH检查" "Webshell检查" "供应链投毒检测" "挖矿木马检查" "Rookit查杀" "风险漏洞检查" "脚本详细说明" "退出脚本"
+select option in "运行所有检查" "系统基础配置检查" "网络和流量检查" "计划任务检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash配置检查" "可疑文件检查" "Rootkit检查" "SSH检查" "Webshell检查" "供应链投毒检测" "挖矿木马检查" "Rookit查杀" "风险漏洞检查" "脚本详细说明" "退出脚本"
 do 
 	case $option in
 		"运行所有检查")
@@ -1000,7 +1048,7 @@ do
 			base_check | tee -a $result/'base_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"网络和流量检查")
 			network_check | tee -a $result/'network_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
-		"任务计划检查")
+		"计划任务检查")
 			crontab_check | tee -a $result/'crontab_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"环境变量检查")
 			env_check | tee -a $result/'env_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
