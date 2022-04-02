@@ -102,15 +102,15 @@ prerequisites_setting() {
 	cmdline=(
 		"epel-release"
 		"net-tools"
-		"telnet"
-		"nc"
-		"lrzsz"
-		"wget"
-		"strace"
-		"htop"
+		# "telnet"
+		# "nc"
+		# "lrzsz"
+		# "wget"
+		# "strace"
+		# "htop"
 		"tar"
 		"lsof"
-		"tcpdump"
+		# "tcpdump"
 		"the_silver_searcher"
 		"silversearcher-ag"
 	)
@@ -119,15 +119,21 @@ prerequisites_setting() {
 	if [ $OS = 'Centos' ]; then
 		soft=$(rpm -q "$prog")
 		if echo "$soft" | grep -E '没有安装|未安装|not installed' >/dev/null 2>&1; then
-			# echo -e "\033[32m 安装中... \t\t$prog \033[0m"
 			yum install -y "$prog" >/dev/null 2>&1
-			green_slim "[PASS] 成功安装 $prog"
+			if [ "$?"=="0" ];then
+				green_slim "[PASS] 成功安装 $prog"
+			else
+				red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
+			fi
 		fi
 	else
 		if dpkg -L $prog | grep 'does not contain any files' >/dev/null 2>&1; then
-			# echo -e "\033[32m 安装中... \t\t$prog \033[0m"
 			apt install -y "$prog" >/dev/null 2>&1
-			green_slim "[PASS] 成功安装 $prog"
+			if [ "$?"=="0" ];then
+				green_slim "[PASS] 成功安装 $prog"
+			else
+				red_slim_flash "[ERROR] 安装失败，请检查问题后再次运行... $prog"
+			fi
 		fi
 	fi
 	done
@@ -850,41 +856,41 @@ prerequisites_setting
 select option in "系统基础配置检查" "网络&流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash 配置检查" "可疑文件检查" "Rootkit 检查" "SSH 检查" "Webshell 检查" "供应链投毒检测" "挖矿木马检查" "Rookit 查杀" "风险&漏洞检查" "退出脚本"
 do 
 	case $option in
-	"系统基础配置检查")
-        base_check  ;;
-	"网络&流量检查")
-		network_check ;;
-	"任务计划检查")
-		crontab_check ;;
-	"环境变量检查")
-		env_check ;;
-	"用户信息检查")
-		user_check ;;
-	"服务状态检查")
-		service_check ;;
-	"Bash 配置检查")
-		bash_check ;;
-	"可疑文件检查")
-		file_check ;;
-	"Rootkit 检查")
-		rootkit_check ;;
-	"SSH 检查")
-		ssh_check ;;
-	"Webshell 检查")
-		webshell_check ;;
-	"供应链投毒检测")
-		poison_check ;;
-	"挖矿木马检查")
-		miner_check ;;
-	"Rookit 查杀")
-		rkhunter_install ;;
-	"风险&漏洞检查")
-		risk_check ;;
-	"退出脚本")
-        break ;;
-	*)
-		clear
-		echo "sorry,wrong selection" ;;
+		"系统基础配置检查")
+			base_check  ;;
+		"网络&流量检查")
+			network_check ;;
+		"任务计划检查")
+			crontab_check ;;
+		"环境变量检查")
+			env_check ;;
+		"用户信息检查")
+			user_check ;;
+		"服务状态检查")
+			service_check ;;
+		"Bash 配置检查")
+			bash_check ;;
+		"可疑文件检查")
+			file_check ;;
+		"Rootkit 检查")
+			rootkit_check ;;
+		"SSH 检查")
+			ssh_check ;;
+		"Webshell 检查")
+			webshell_check ;;
+		"供应链投毒检测")
+			poison_check ;;
+		"挖矿木马检查")
+			miner_check ;;
+		"Rookit 查杀")
+			rkhunter_install ;;
+		"风险&漏洞检查")
+			risk_check ;;
+		"退出脚本")
+			break ;;
+		*)
+			clear
+			echo "sorry,wrong selection" ;;
 	esac
 done
 clear
