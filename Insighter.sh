@@ -53,10 +53,13 @@ bblue_slim "███  ███   ███          ███ ███    █
 bblue_slim "███  ███   ███    ▄█    ███ ███    ███    ███   ███    ███       ███       ███    ███   ███    ███      ";
 bblue_slim "█▀    ▀█   █▀   ▄████████▀  █▀     ████████▀    ███    █▀       ▄████▀     ██████████   ███    ███      ";
 bblue_slim "             Insighter -- 适用于 CentOS & Ubuntu 系统洞察快速检测工具  v1.0             ███    ███           ";
+bblue_slim "[INFO] for CentOS 7 and Ubuntu 16"
+bblue_slim "[INFO] 所有检查结果将保存在当前路径下的results目录"
+bblue_slim "[INFO] 默认的web目录为 / ;如需指定请修改脚本中webpath变量"
+
+
+
 echo -e "\n"
-
-
-
 # WEB Path 设置web目录 默认的话是从/目录去搜索 性能较慢
 webpath='/'
 
@@ -849,7 +852,6 @@ risk_check() {
 
 
 helper() {
-	bblue_slim "-------------------------"
 	yellow_blod "[1] 系统基础配置检查"
 	yellow_slim "[++] 系统信息"
 	yellow_slim "[++] CPU使用率"
@@ -860,7 +862,6 @@ helper() {
 	yellow_slim "[++] 硬盘挂载"
 	yellow_slim "[++] 常用软件"
 	yellow_slim "[++] /etc/hosts"
-	bblue_slim "-------------------------"
 	yellow_blod "[2] 网络和流量检查"
 	yellow_slim "[++] ifconfig"
 	yellow_slim "[++] 网络流量 "
@@ -874,11 +875,9 @@ helper() {
 	yellow_slim "[++] ARP"
 	yellow_slim "[++] 网卡混杂模式"
 	yellow_slim "[++] IPTABLES防火墙"
-	bblue_slim "-------------------------"
 	yellow_blod "[3] 任务计划检查"
 	yellow_slim "[++] Crontab"
 	yellow_slim "[++] Crontab Backdoor "
-	bblue_slim "-------------------------"
 	yellow_blod "[4] 环境变量检查"
 	yellow_slim "[++] env"
 	yellow_slim "[++] PATH"
@@ -888,18 +887,15 @@ helper() {
 	yellow_slim "[++] PROMPT_COMMAND"
 	yellow_slim "[++] LD_LIBRARY_PATH"
 	yellow_slim "[++] ld.so.preload"
-	bblue_slim "-------------------------"
 	yellow_blod "[5] 用户信息检查"
 	yellow_slim "[++] 可登陆的用户"
 	yellow_slim "[++] passwd文件修改日期"
 	yellow_slim "[++] sudoers(请注意NOPASSWD)"
 	yellow_slim "[++] 登录信息"
 	yellow_slim "[++] 登陆成功的IP"
-	bblue_slim "-------------------------"
 	yellow_blod "[6] 服务状态检查"
 	yellow_slim "[++] 正在运行的Service "
 	yellow_slim "[++] 最近添加的Service "
-	bblue_slim "-------------------------"
 	yellow_blod "[7] Bash配置检查"
 	yellow_slim "[++] History"
 	yellow_slim "[++] /etc/profile "
@@ -908,7 +904,6 @@ helper() {
 	yellow_slim "[++] ~/.bash_profile "
 	yellow_slim "[++] ~/.bashrc "
 	yellow_slim "[++] bash反弹shell "
-	bblue_slim "-------------------------"
 	yellow_blod "[8] 可疑文件检查"
 	yellow_slim "[++] 系统文件修改时间 "
 	yellow_slim "[++] 隐藏文件 "
@@ -921,35 +916,28 @@ helper() {
 	yellow_slim "[++] 大文件>200mb "
 	yellow_slim "[++] 敏感文件 "
 	yellow_slim "[++] 可疑黑客文件 "
-	bblue_slim "-------------------------"
 	yellow_blod "[9] Rootkit检查"
 	yellow_slim "[++] lsmod 可疑模块"
 	yellow_slim "[++] Rootkit 内核模块"
 	yellow_slim "[++] 可疑的.ko模块"
-	bblue_slim "-------------------------"
 	yellow_blod "[10] SSH检查"
 	yellow_slim "[++] SSH爆破"
 	yellow_slim "[++] SSHD "
 	yellow_slim "[++] SSH 后门配置 "
 	yellow_slim "[++] SSH inetd后门检查 "
 	yellow_slim "[++] SSH key"
-	bblue_slim "-------------------------"
 	yellow_blod "[11] Webshell检查"
 	yellow_slim "[++] PHP webshell查杀"
 	yellow_slim "[++] JSP webshell查杀"
-	bblue_slim "-------------------------"
 	yellow_blod "[12] 供应链投毒检测"
 	yellow_slim "[++] Python2 pip 检测"
 	yellow_slim "[++] Python3 pip 检测"
-	bblue_slim "-------------------------"
 	yellow_blod "[13] 挖矿木马检查"
 	yellow_slim "[++] 常规挖矿进程检测"
 	yellow_slim "[++] Ntpclient 挖矿木马检测"
 	yellow_slim "[++] WorkMiner 挖矿木马检测"
-	bblue_slim "-------------------------"
 	yellow_blod "[14] Rookit查杀"
 	yellow_slim "[++] Rkhunter查杀"
-	bblue_slim "-------------------------"
 	yellow_blod "[15] 风险&漏洞检查"
 	yellow_slim "[++] Redis弱密码检测"
 }
