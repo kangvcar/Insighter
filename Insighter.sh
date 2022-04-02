@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 export PS3='[Press RETURN for menu, and select number, or 18 when quit] #? > '
+# WEB Path 设置web目录 默认的话是从/目录去搜索 性能较慢
+webpath='/'
+# 检查结果保存文件夹
+if [ ! -d "./results" ];then
+	mkdir -p ./results
+fi
+result='./results'
+
 red_blod() {
 	echo -e "\x1b[1;31m$1\e[0m"
 }
@@ -53,15 +61,21 @@ bblue_slim "███  ███   ███          ███ ███    █
 bblue_slim "███  ███   ███    ▄█    ███ ███    ███    ███   ███    ███       ███       ███    ███   ███    ███      ";
 bblue_slim "█▀    ▀█   █▀   ▄████████▀  █▀     ████████▀    ███    █▀       ▄████▀     ██████████   ███    ███      ";
 bblue_slim "             Insighter -- 适用于 CentOS & Ubuntu 系统洞察快速检测工具  v1.0             ███    ███           ";
-bblue_slim "[INFO] for CentOS 7 and Ubuntu 16"
-bblue_slim "[INFO] 所有检查结果将保存在当前路径下的results目录"
-bblue_slim "[INFO] 默认的web目录为 / ;如需指定请修改脚本中webpath变量"
+bblue_slim "[INFO] Starting ..."
+bblue_slim "[INFO] Current Web Root: $webpath ;如需指定请修改脚本中 webpath 变量"
+bblue_slim "[INFO] Current User: $(whoami)"
+bblue_slim "[INFO] Hostname: $(hostname -s)"
+bblue_slim "[INFO] Operating System: $(hostnamectl | grep 'Operating' | cut -d: -f2)"
+bblue_slim "[INFO] Uptime: $(uptime | awk -F ',' '{print $1}')"
+bblue_slim "[INFO] Kernel Version: $(uname -r)"
+bblue_slim "[INFO] CPU Info: $(ag -o '(?<=model name\t: ).*' </proc/cpuinfo | head -n 1)"
+bblue_slim "[INFO] ALL IPAddress: $(ifconfig | ag -o '(?<=inet |inet addr:)\d+\.\d+\.\d+\.\d+' | ag -v '127.0.0.1' | tr '\n' '\t')"
+bblue_slim "[INFO] 检查结果保存目录：$result"
 
 
 
 echo -e "\n"
-# WEB Path 设置web目录 默认的话是从/目录去搜索 性能较慢
-webpath='/'
+
 
 ### 1.环境检查 ###
 prerequisites_setting() {
@@ -837,7 +851,7 @@ rkhunter_install() {
 }
 
 risk_check() {
-	yellow_blod "[+] 风险&漏洞检查"
+	yellow_blod "[+] 风险漏洞检查"
 	#Redis弱密码检测
 	yellow_slim "[++] Redis弱密码检测"
 	bblue_slim "[Command]: cat /etc/redis/redis.conf 2>/dev/null | ag '(?<=requirepass )(test|123456|admin|root|12345678|111111|p@ssw0rd|test|qwerty|zxcvbnm|123123|12344321|123qwe|password|1qaz|000000|666666|888888)'"
@@ -938,7 +952,7 @@ helper() {
 	yellow_slim "[++] WorkMiner 挖矿木马检测"
 	yellow_blod "[14] Rookit查杀"
 	yellow_slim "[++] Rkhunter查杀"
-	yellow_blod "[15] 风险&漏洞检查"
+	yellow_blod "[15] 风险漏洞检查"
 	yellow_slim "[++] Redis弱密码检测"
 }
 
@@ -959,13 +973,9 @@ prerequisites_setting
 # rkhunter_install
 # risk_check
 
-#Todo: 每个模块选择后自动把输出保存到文件
-if [ ! -d "./results" ];then
-	mkdir -p ./results
-fi
-result='./results'
 
-select option in "运行所有检查" "系统基础配置检查" "网络和流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash配置检查" "可疑文件检查" "Rootkit检查" "SSH检查" "Webshell检查" "供应链投毒检测" "挖矿木马检查" "Rookit查杀" "风险&漏洞检查" "脚本详细说明" "退出脚本"
+
+select option in "运行所有检查" "系统基础配置检查" "网络和流量检查" "任务计划检查" "环境变量检查" "用户信息检查" "服务状态检查" "Bash配置检查" "可疑文件检查" "Rootkit检查" "SSH检查" "Webshell检查" "供应链投毒检测" "挖矿木马检查" "Rookit查杀" "风险漏洞检查" "脚本详细说明" "退出脚本"
 do 
 	case $option in
 		"运行所有检查")
@@ -1014,7 +1024,7 @@ do
 			miner_check | tee -a $result/'miner_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"Rookit查杀")
 			rkhunter_install | tee -a $result/'rkhunter_install'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
-		"风险&漏洞检查")
+		"风险漏洞检查")
 			risk_check | tee -a $result/'risk_check'_`date +%Y%m%d%H%M%S`_"$option".log | less -e -B -R  ;;
 		"脚本详细说明")
 			helper | less -e -B -R  ;;
