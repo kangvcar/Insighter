@@ -885,7 +885,7 @@ rkhunter_install() {
 			rkhunter --checkall --sk | ag -v 'OK|Not found|None found'
 		else
 			echo -e "未找到 rkhunter.tar.gz 软件包，正在尝试下载..."
-			curl --connect-timeout 5 -o /tmp/rkhunter.tar.gz https://nchc.dl.sourceforge.net/project/rkhunter/rkhunter/1.4.6/rkhunter-1.4.6.tar.gz >/dev/null
+			eval curl -sL -o /tmp/rkhunter.tar.gz https://nchc.dl.sourceforge.net/project/rkhunter/rkhunter/1.4.6/rkhunter-1.4.6.tar.gz >/dev/null
 			sleep 10
 			tar -zxvf /tmp/rkhunter.tar.gz >/dev/null 2>&1
 			cd /tmp/rkhunter-1.4.6/ && ./installer.sh --install >/dev/null 2>&1
